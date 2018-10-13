@@ -38,20 +38,4 @@ docker exec test_cb1_1 couchbase-cli bucket-create \
 
 ./generate-data &
 
-echo "Keep adding and removing nodes and rebalancing..."
-while true; do
-	docker exec test_cb1_1 couchbase-cli rebalance \
-		-c localhost -u adm -p secret \
-		--server-remove=172.21.0.12
-
-	sleep 60
-
-	docker exec test_cb1_1 couchbase-cli rebalance \
-		-c localhost -u adm -p secret \
-		--server-add=172.21.0.12 \
-		--server-add-username=adm \
-		--server-add-password=secret \
-		--services=data,index,query,fts
-
-	sleep 60
-done
+./rebalance

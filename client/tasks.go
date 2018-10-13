@@ -8,25 +8,31 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Tasks returns the results of /pools/default/tasks
 func (c Client) Tasks() ([]Task, error) {
 	resp, err := c.client.Get(c.url("/pools/default/tasks"))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tasks")
 	}
-	fmt.Println(resp)
-	var tasks []Task
+
 	bts, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read response body")
 	}
 	defer resp.Body.Close()
-	fmt.Println(string(bts))
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("failed to get task metrics: %s %d", string(bts), resp.StatusCode)
+	}
+
+	var tasks []Task
 	if err := json.Unmarshal(bts, &tasks); err != nil {
-		return nil, errors.Wrapf(err, "failed to unmarshall tasks")
+		return nil, errors.Wrapf(err, "failed to unmarshall tasks: %s", string(bts))
 	}
 	return tasks, nil
 }
 
+// Task is a couchbase task
 type Task struct {
 	Type     string  `json:"type,omitempty"`
 	Status   string  `json:"status,omitempty"`
@@ -52,6 +58,7 @@ type Task struct {
 	} `json:"detailedProgress,omitempty"`
 }
 
+// NodeProgress is the ingoing/outgoing detailed progress of a task in a node
 type NodeProgress struct {
 	DocsTotal           int64 `json:"docsTotal,omitempty"`
 	DocsTransferred     int64 `json:"docsTransferred,omitempty"`
