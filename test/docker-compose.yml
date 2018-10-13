@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  cb1:
+    image: couchbase/server:community-4.5.0
+    networks:
+      cb4testnet:
+        ipv4_address: 172.21.0.10
+    ports:
+    - 8091:8091
+  cb2:
+    image: couchbase/server:community-4.5.0
+    networks:
+      cb4testnet:
+        ipv4_address: 172.21.0.11
+  cb3:
+    image: couchbase/server:community-4.5.0
+    networks:
+      cb4testnet:
+        ipv4_address: 172.21.0.12
+
+networks:
+  cb4testnet:
+    driver: bridge
+    ipam:
+     config:
+      - subnet: 172.21.0.0/16
+        gateway: 172.21.0.1
