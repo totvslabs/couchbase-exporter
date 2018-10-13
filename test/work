@@ -11,7 +11,7 @@ while ! curl -s localhost:8091/pools >/dev/null 2>&1; do
 done
 
 echo "Init cluster..."
-docker exec cb_cb1_1 couchbase-cli cluster-init \
+docker exec test_cb1_1 couchbase-cli cluster-init \
 	--cluster-username=adm \
 	--cluster-password=secret \
 	--cluster-port=SAME \
@@ -20,7 +20,7 @@ docker exec cb_cb1_1 couchbase-cli cluster-init \
 	--services=data,index,query,fts
 
 echo "Add nodes and rebalance..."
-docker exec cb_cb1_1 couchbase-cli rebalance \
+docker exec test_cb1_1 couchbase-cli rebalance \
 	-c localhost -u adm -p secret \
 	--server-add=172.21.0.11 \
 	--server-add=172.21.0.12 \
@@ -29,7 +29,7 @@ docker exec cb_cb1_1 couchbase-cli rebalance \
 	--services=data,index,query,fts
 
 echo "Create a bucket..."
-docker exec cb_cb1_1 couchbase-cli bucket-create \
+docker exec test_cb1_1 couchbase-cli bucket-create \
 	-c localhost -u adm -p secret \
 	--bucket=customer \
 	--bucket-ramsize=100 \
@@ -40,13 +40,13 @@ docker exec cb_cb1_1 couchbase-cli bucket-create \
 
 echo "Keep adding and removing nodes and rebalancing..."
 while true; do
-	docker exec cb_cb1_1 couchbase-cli rebalance \
+	docker exec test_cb1_1 couchbase-cli rebalance \
 		-c localhost -u adm -p secret \
 		--server-remove=172.21.0.12
 
 	sleep 60
 
-	docker exec cb_cb1_1 couchbase-cli rebalance \
+	docker exec test_cb1_1 couchbase-cli rebalance \
 		-c localhost -u adm -p secret \
 		--server-add=172.21.0.12 \
 		--server-add-username=adm \

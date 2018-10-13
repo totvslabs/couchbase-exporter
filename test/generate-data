@@ -2,7 +2,7 @@
 
 for i in $(seq 1 10000); do
   echo "inserting $i"
-  docker exec cb_cb1_1 cbq --quiet=true -output=/dev/null \
+  docker exec test_cb1_1 cbq --quiet=true -output=/dev/null \
     -u adm -p secret -engine=http://127.0.0.1:8091/ \
     --script="INSERT INTO customer (KEY, VALUE) VALUES (\"$i\", { \"id\": $i, \"name\": \"John Doe -$i\"})"
 done
