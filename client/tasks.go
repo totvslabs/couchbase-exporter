@@ -1,35 +1,12 @@
 package client
 
-import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-
-	"github.com/pkg/errors"
-)
+import "github.com/pkg/errors"
 
 // Tasks returns the results of /pools/default/tasks
 func (c Client) Tasks() ([]Task, error) {
-	resp, err := c.client.Get(c.url("/pools/default/tasks"))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get tasks")
-	}
-
-	bts, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read response body")
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("failed to get task metrics: %s %d", string(bts), resp.StatusCode)
-	}
-
 	var tasks []Task
-	if err := json.Unmarshal(bts, &tasks); err != nil {
-		return nil, errors.Wrapf(err, "failed to unmarshall tasks: %s", string(bts))
-	}
-	return tasks, nil
+	err := c.get("/pools/default/tasks", &tasks)
+	return tasks, errors.Wrap(err, "failed to get tasks")
 }
 
 // Task is a couchbase task
