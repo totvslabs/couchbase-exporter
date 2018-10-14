@@ -20,7 +20,7 @@ type Bucket struct {
 	} `json:"quota,omitempty"`
 	BasicStats struct {
 		QuotaPercentUsed float64 `json:"quotaPercentUsed,omitempty"`
-		OpsPerSec        int64   `json:"opsPerSec,omitempty"`
+		OpsPerSec        float64 `json:"opsPerSec,omitempty"`
 		DiskFetchs       int64   `json:"diskFetchs,omitempty"`
 		ItemCount        int64   `json:"itemCount,omitempty"`
 		DiskUsed         int64   `json:"diskUsed,omitempty"`
