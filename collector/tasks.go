@@ -59,7 +59,10 @@ func NewTasksCollector(client client.Client) prometheus.Collector {
 
 // Describe all metrics
 func (c *taskCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- c.up
+	ch <- c.scrapeDuration
 	ch <- c.rebalance
+	ch <- c.rebalancePerNode
 	ch <- c.compacting
 }
 

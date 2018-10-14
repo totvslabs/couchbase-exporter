@@ -14,7 +14,7 @@ import (
 
 var (
 	version       = "dev"
-	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9470").String()
+	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9420").String()
 	metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
 	couchbaseURL  = kingpin.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
 	couchbaseUsername  = kingpin.Flag("couchbase.username", "Couchbase username").String()
@@ -32,6 +32,9 @@ func main() {
 	var client = client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
 
 	prometheus.MustRegister(collector.NewTasksCollector(client))
+	prometheus.MustRegister(collector.NewBucketsCollector(client))
+	prometheus.MustRegister(collector.NewNodesCollector(client))
+	prometheus.MustRegister(collector.NewClusterCollector(client))
 
 	http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
