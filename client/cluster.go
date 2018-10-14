@@ -13,30 +13,32 @@ func (c Client) Cluster() (Cluster, error) {
 type Cluster struct {
 	StorageTotals struct {
 		RAM struct {
-			Total      int `json:"total"`
-			QuotaTotal int `json:"quotaTotal"`
-			QuotaUsed  int `json:"quotaUsed"`
-			Used       int `json:"used"`
-			UsedByData int `json:"usedByData"`
+			Total             int64 `json:"total"`
+			QuotaTotal        int64 `json:"quotaTotal"`
+			QuotaUsed         int64 `json:"quotaUsed"`
+			Used              int64 `json:"used"`
+			UsedByData        int64 `json:"usedByData"`
+			QuotaUsedPerNode  int64 `json:"quotaUsedPerNode"`
+			QuotaTotalPerNode int64 `json:"quotaTotalPerNode"`
 		} `json:"ram"`
 		Hdd struct {
 			Total      int64 `json:"total"`
 			QuotaTotal int64 `json:"quotaTotal"`
 			Used       int64 `json:"used"`
-			UsedByData int   `json:"usedByData"`
+			UsedByData int64 `json:"usedByData"`
 			Free       int64 `json:"free"`
 		} `json:"hdd"`
 	} `json:"storageTotals"`
-	FtsMemoryQuota   int    `json:"ftsMemoryQuota"`
-	IndexMemoryQuota int    `json:"indexMemoryQuota"`
-	MemoryQuota      int    `json:"memoryQuota"`
+	FtsMemoryQuota   int64  `json:"ftsMemoryQuota"`
+	IndexMemoryQuota int64  `json:"indexMemoryQuota"`
+	MemoryQuota      int64  `json:"memoryQuota"`
 	RebalanceStatus  string `json:"rebalanceStatus"`
-	MaxBucketCount   int    `json:"maxBucketCount"`
+	MaxBucketCount   int64  `json:"maxBucketCount"`
 	Counters         struct {
-		FailoverNode     int `json:"failover_node"`
-		RebalanceSuccess int `json:"rebalance_success"`
-		RebalanceStart   int `json:"rebalance_start"`
-		RebalanceFail    int `json:"rebalance_fail"`
+		FailoverNode     int64 `json:"failover_node"`
+		RebalanceSuccess int64 `json:"rebalance_success"`
+		RebalanceStart   int64 `json:"rebalance_start"`
+		RebalanceFail    int64 `json:"rebalance_fail"`
 	} `json:"counters"`
 	Balanced bool `json:"balanced"` // couchbase 5.1.1
 }
