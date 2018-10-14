@@ -21,3 +21,4 @@ $ couchbase-exporter --couchbase.username adm --couchbase.password secret
 - [x] export cluster metrics
 - [ ] provide grafana dashboards (maybe use jsonnet?)
 - [ ] check other TODOs
+- [ ] improve metric names (add `_bytes`, `_seconds`, etc)
