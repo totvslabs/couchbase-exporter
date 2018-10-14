@@ -19,6 +19,6 @@ $ couchbase-exporter --couchbase.username adm --couchbase.password secret
 - [x] export bucket metrics
 - [ ] export node metrics
 - [x] export cluster metrics
-- [ ] provide grafana dashboards (maybe use jsonnet?)
+- [ ] provide grafana dashboards (maybe use jsonnet (https://github.com/grafana/grafonnet-lib)?)
 - [ ] check other TODOs
-- [ ] improve metric names (add `_bytes`, `_seconds`, etc)
+- [ ] improve metric names (add `_bytes`, `_seconds`, `_count`, etc)
