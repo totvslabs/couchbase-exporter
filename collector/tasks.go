@@ -20,6 +20,10 @@ type taskCollector struct {
 	compacting       *prometheus.Desc
 }
 
+// NewTasksCollector tasks collector
+//
+// TODO: add PerNode metrics
+//
 func NewTasksCollector(client client.Client) prometheus.Collector {
 	const ns = "task"
 	return &taskCollector{

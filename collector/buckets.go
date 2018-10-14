@@ -212,6 +212,10 @@ type bucketsCollector struct {
 	statsXdcOps                               *prometheus.Desc
 }
 
+// NewBucketsCollector buckets collector
+//
+// TODO: add help to the metrics
+//
 func NewBucketsCollector(client client.Client) prometheus.Collector {
 	const ns = "bucket"
 	const nsBsic = "bucket_basicstats"
@@ -1620,6 +1624,9 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 			log.With("error", err).Error("failed to scrape buckets stats")
 			return
 		}
+
+		// TODO: collect bucket.Nodes metrics as well
+
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, float64(bucket.BasicStats.DataUsed), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, float64(bucket.BasicStats.DiskFetchs), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskused, prometheus.GaugeValue, float64(bucket.BasicStats.DiskUsed), bucket.Name)
@@ -1627,10 +1634,6 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.basicstatsMemused, prometheus.GaugeValue, float64(bucket.BasicStats.MemUsed), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsOpspersec, prometheus.GaugeValue, bucket.BasicStats.OpsPerSec, bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BasicStats.QuotaPercentUsed, bucket.Name)
-
-		last := func(ss []float64) float64 {
-			return ss[len(ss)-1]
-		}
 
 		ch <- prometheus.MustNewConstMetric(c.statsAvgBgWaitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgBgWaitTime), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskCommitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskCommitTime), bucket.Name)

@@ -17,6 +17,10 @@ type nodesCollector struct {
 	scrapeDuration *prometheus.Desc
 }
 
+// NewNodesCollector nodes collector
+//
+// TODO: implement this
+//
 func NewNodesCollector(client client.Client) prometheus.Collector {
 	const ns = "nodes"
 	return &nodesCollector{

@@ -8,3 +8,7 @@ func fromBool(i bool) float64 {
 	}
 	return 0.0
 }
+
+func last(ss []float64) float64 {
+	return ss[len(ss)-1]
+}
