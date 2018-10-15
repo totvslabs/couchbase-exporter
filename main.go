@@ -9,6 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -25,9 +26,12 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
-	log.Info("Starting couchbase-exporter ", version)
+	log.Info("starting couchbase-exporter", version)
 
-	var client = client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
+	client, err := client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
+	if err != nil {
+		log.Fatalf("failed to create couchbase client: %v", err)
+	}
 
 	prometheus.MustRegister(collector.NewTasksCollector(client))
 	prometheus.MustRegister(collector.NewBucketsCollector(client))
@@ -48,8 +52,8 @@ func main() {
 			`)
 	})
 
-	log.Infof("Server listening on %s", *listenAddress)
+	log.Infof("server listening on %s", *listenAddress)
 	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
-		log.Fatalf("Error starting server: %v", err)
+		log.Fatalf("failed to start server: %v", err)
 	}
 }

@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/log"
 )
 
 // Client is the couchbase client
 type Client struct {
 	baseURL string
 	client  http.Client
+	version string
 }
 
 // New creates a new couchbase client
-func New(url, user, password string) Client {
-	return Client{
+func New(url, user, password string) (Client, error) {
+	var client = Client{
 		baseURL: url,
 		client: http.Client{
 			Transport: &AuthTransport{
@@ -26,6 +29,17 @@ func New(url, user, password string) Client {
 			},
 		},
 	}
+	nodes, err := client.Nodes()
+	if err != nil {
+		return client, errors.Wrap(err, "failed to get node details")
+	}
+	client.version = nodes.Version
+	log.Infof("couchbase %s", client.version)
+	return client, nil
+}
+
+func (c Client) IsCouchbase5() bool {
+	return strings.HasPrefix(c.version, "5.")
 }
 
 func (c Client) url(path string) string {

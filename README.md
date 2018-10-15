@@ -21,4 +21,5 @@ $ couchbase-exporter --couchbase.username adm --couchbase.password secret
 - [x] export cluster metrics
 - [ ] provide grafana dashboards (maybe use jsonnet (https://github.com/grafana/grafonnet-lib)?)
 - [ ] check other TODOs
-- [ ] improve metric names (add `_bytes`, `_seconds`, `_count`, etc)
+- [ ] improve metric names (add `_bytes`, `_seconds`, `_total`, etc)
+- [ ] do the `if cb5` and `if cb4` accordingly
