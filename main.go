@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/caarlos0/couchbase-exporter/collector"
 	"github.com/caarlos0/couchbase-exporter/client"
+	"github.com/caarlos0/couchbase-exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"github.com/prometheus/common/log"
 )
 
 var (
-	version       = "dev"
-	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9420").String()
-	metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
-	couchbaseURL  = kingpin.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
-	couchbaseUsername  = kingpin.Flag("couchbase.username", "Couchbase username").String()
-	couchbasePassword  = kingpin.Flag("couchbase.password", "Couchbase password").String()
+	version           = "dev"
+	listenAddress     = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9420").String()
+	metricsPath       = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
+	couchbaseURL      = kingpin.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
+	couchbaseUsername = kingpin.Flag("couchbase.username", "Couchbase username").String()
+	couchbasePassword = kingpin.Flag("couchbase.password", "Couchbase password").String()
 )
 
 func main() {
@@ -27,7 +26,6 @@ func main() {
 	kingpin.Parse()
 
 	log.Info("Starting couchbase-exporter ", version)
-
 
 	var client = client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
 
@@ -55,4 +53,3 @@ func main() {
 		log.Fatalf("Error starting server: %v", err)
 	}
 }
-
