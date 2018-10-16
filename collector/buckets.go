@@ -36,6 +36,10 @@ type bucketsCollector struct {
 	statsCmdGet                               *prometheus.Desc
 	statsCmdSet                               *prometheus.Desc
 	statsCouchTotalDiskSize                   *prometheus.Desc
+	statsCouchViewsDataSize                   *prometheus.Desc
+	statsCouchViewsActualDiskSize             *prometheus.Desc
+	statsCouchViewsFragmentation              *prometheus.Desc
+	statsCouchViewsOps                        *prometheus.Desc
 	statsCouchDocsDataSize                    *prometheus.Desc
 	statsCouchDocsDiskSize                    *prometheus.Desc
 	statsCouchDocsActualDiskSize              *prometheus.Desc
@@ -356,6 +360,30 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			[]string{"bucket"},
 			nil,
 		),
+		statsCouchViewsFragmentation: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "couch_views_fragmentation"),
+			"How much fragmented data there is to be compacted compared to real data for the view index files in this bucket",
+			[]string{"bucket"},
+			nil,
+		),
+		statsCouchViewsOps: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "couch_views_ops"),
+			"All the view reads for all design documents including scatter gather",
+			[]string{"bucket"},
+			nil,
+		),
+		statsCouchViewsDataSize: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "couch_views_data_size"),
+			"The size of active data on for all the indexes in this bucket",
+			[]string{"bucket"},
+			nil,
+		),
+		statsCouchViewsActualDiskSize: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "couch_views_actual_disk_size"),
+			"The size of all active items in all the indexes for this bucket on disk",
+			[]string{"bucket"},
+			nil,
+		),
 		statsCouchDocsFragmentation: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "couch_docs_fragmentation"),
 			"How much fragmented data there is to be compacted compared to real data for the data files in this bucket",
@@ -406,7 +434,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsCurrItems: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_curr_items"),
-			"Number of unique items in this bucket - only active items, not replica",
+			"Number of items in active vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -526,31 +554,31 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpDcpOtherBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_other_backoff"),
-			"stats_ep_dcp_other_backoff",
+			"Number of backoffs for other DCP connections",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpOtherCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_other_count"),
-			"stats_ep_dcp_other_count",
+			"Number of other DCP connections in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpOtherItemsRemaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_other_items_remaining"),
-			"stats_ep_dcp_other_items_remaining",
+			"Number of items remaining to be sent to consumer in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpOtherItemsSent: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_other_items_sent"),
-			"stats_ep_dcp_other_items_sent",
+			"Number of items per second being sent for a producer for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpOtherProducerCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_other_producer_count"),
-			"stats_ep_dcp_other_producer_count",
+			"Number of other senders for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -562,37 +590,37 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpDcpOtherTotalBytes: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_other_total_bytes"),
-			"stats_ep_dcp_other_total_bytes",
+			"Number of bytes per second being sent for other DCP connections for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpReplicaBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_replica_backoff"),
-			"stats_ep_dcp_replica_backoff",
+			"Number of backoffs for replication DCP connections",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpReplicaCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_replica_count"),
-			"stats_ep_dcp_replica_count",
+			"Number of internal replication DCP connections in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpReplicaItemsRemaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_replica_items_remaining"),
-			"stats_ep_dcp_replica_items_remaining",
+			"Number of items remaining to be sent to consumer in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpReplicaItemsSent: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_replica_items_sent"),
-			"stats_ep_dcp_replica_items_sent",
+			"Number of items per second being sent for a producer for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpReplicaProducerCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_replica_producer_count"),
-			"stats_ep_dcp_replica_producer_count",
+			"Number of replication senders for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -604,7 +632,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpDcpReplicaTotalBytes: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_replica_total_bytes"),
-			"stats_ep_dcp_replica_total_bytes",
+			"Number of bytes per second being sent for replication DCP connections for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -652,31 +680,31 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpDcpXdcrBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_xdcr_backoff"),
-			"stats_ep_dcp_xdcr_backoff",
+			"Number of backoffs for XDCR DCP connections",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpXdcrCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_xdcr_count"),
-			"stats_ep_dcp_xdcr_count",
+			"Number of internal XDCR DCP connections in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpXdcrItemsRemaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_xdcr_items_remaining"),
-			"stats_ep_dcp_xdcr_items_remaining",
+			"Number of items remaining to be sent to consumer in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpXdcrItemsSent: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_xdcr_items_sent"),
-			"stats_ep_dcp_xdcr_items_sent",
+			"Number of items per second being sent for a producer for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpXdcrProducerCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_xdcr_producer_count"),
-			"stats_ep_dcp_xdcr_producer_count",
+			"Number of XDCR senders for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -688,25 +716,25 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpDcpXdcrTotalBytes: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_dcp_xdcr_total_bytes"),
-			"stats_ep_dcp_xdcr_total_bytes",
+			"Number of bytes per second being sent for XDCR DCP connections for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDiskqueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_diskqueue_drain"),
-			"stats_ep_diskqueue_drain",
+			"Total number of items per second being written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDiskqueueFill: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_diskqueue_fill"),
-			"stats_ep_diskqueue_fill",
+			"Total number of items per second being put on the disk queue in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDiskqueueItems: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_diskqueue_items"),
-			"Total number of items waiting to be written to disk in the bucket",
+			"Total number of items waiting to be written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -724,7 +752,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpKvSize: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_kv_size"),
-			"stats_ep_kv_size",
+			"Total amount of user data cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -748,7 +776,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpMetaDataMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_meta_data_memory"),
-			"stats_ep_meta_data_memory",
+			"Total amount of item metadata consuming RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -760,7 +788,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpNumOpsDelMeta: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_num_ops_del_meta"),
-			"stats_ep_num_ops_del_meta",
+			"Number of delete operations per second for this bucket as the target for XDCR",
 			[]string{"bucket"},
 			nil,
 		),
@@ -772,13 +800,13 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpNumOpsGetMeta: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_num_ops_get_meta"),
-			"stats_ep_num_ops_get_meta",
+			"Number of metadata read operations per second for this bucket as the target for XDCR",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpNumOpsSetMeta: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_num_ops_set_meta"),
-			"stats_ep_num_ops_set_meta",
+			"Number of set operations per second for this bucket as the target for XDCR",
 			[]string{"bucket"},
 			nil,
 		),
@@ -790,7 +818,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpNumValueEjects: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_num_value_ejects"),
-			"stats_ep_num_value_ejects",
+			"Total number of items per second being ejected to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -802,7 +830,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpOpsCreate: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_ops_create"),
-			"Number of new items created on disk per second for this bucket",
+			"Total number of new items being inserted into this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -826,37 +854,37 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpResidentItemsRate: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_resident_items_rate"),
-			"stats_ep_resident_items_rate",
+			"Percentage of all items cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapRebalanceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_rebalance_count"),
-			"stats_ep_tap_rebalance_count",
+			"Number of internal rebalancing TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapRebalanceQlen: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_rebalance_qlen"),
-			"stats_ep_tap_rebalance_qlen",
+			"Number of items in the rebalance TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapRebalanceQueueBackfillremaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_rebalance_queue_backfillremaining"),
-			"stats_ep_tap_rebalance_queue_backfillremaining",
+			"Number of items in the backfill queues of rebalancing TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapRebalanceQueueBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_rebalance_queue_backoff"),
-			"stats_ep_tap_rebalance_queue_backoff",
+			"Number of back-offs received per second while sending data over rebalancing TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapRebalanceQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_rebalance_queue_drain"),
-			"stats_ep_tap_rebalance_queue_drain",
+			"Number of items per second being sent over rebalancing TAP connections to this bucket, i.e. removed from queue",
 			[]string{"bucket"},
 			nil,
 		),
@@ -868,7 +896,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapRebalanceQueueItemondisk: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_rebalance_queue_itemondisk"),
-			"stats_ep_tap_rebalance_queue_itemondisk",
+			"Number of items still on disk to be loaded for rebalancing TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -880,31 +908,31 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapReplicaCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_replica_count"),
-			"stats_ep_tap_replica_count",
+			"Number of internal replication TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapReplicaQlen: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_replica_qlen"),
-			"stats_ep_tap_replica_qlen",
+			"Number of items in the replication TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapReplicaQueueBackfillremaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_replica_queue_backfillremaining"),
-			"stats_ep_tap_replica_queue_backfillremaining",
+			"Number of items in the backfill queues of replication TAP connections for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapReplicaQueueBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_replica_queue_backoff"),
-			"stats_ep_tap_replica_queue_backoff",
+			"Number of back-offs received per second while sending data over replication TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapReplicaQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_replica_queue_drain"),
-			"stats_ep_tap_replica_queue_drain",
+			"Number of items per second being sent over replication TAP connections to this bucket, i.e. removed from queue",
 			[]string{"bucket"},
 			nil,
 		),
@@ -916,7 +944,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapReplicaQueueItemondisk: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_replica_queue_itemondisk"),
-			"stats_ep_tap_replica_queue_itemondisk",
+			"Number of items still on disk to be loaded for replication TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -928,31 +956,31 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapTotalCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_total_count"),
-			"stats_ep_tap_total_count",
+			"Total number of internal TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapTotalQlen: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_total_qlen"),
-			"stats_ep_tap_total_qlen",
+			"Total number of items in TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapTotalQueueBackfillremaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_total_queue_backfillremaining"),
-			"stats_ep_tap_total_queue_backfillremaining",
+			"Total number of items in the backfill queues of TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapTotalQueueBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_total_queue_backoff"),
-			"stats_ep_tap_total_queue_backoff",
+			"Total number of back-offs received per second while sending data over TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapTotalQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_total_queue_drain"),
-			"stats_ep_tap_total_queue_drain",
+			"Total number of items per second being sent over TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -964,7 +992,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapTotalQueueItemondisk: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_total_queue_itemondisk"),
-			"stats_ep_tap_total_queue_itemondisk",
+			"Total number of items still on disk to be loaded for TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -976,31 +1004,31 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapUserCount: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_user_count"),
-			"stats_ep_tap_user_count",
+			"Number of internal user TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapUserQlen: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_user_qlen"),
-			"stats_ep_tap_user_qlen",
+			"Number of items in user TAP queues in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapUserQueueBackfillremaining: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_user_queue_backfillremaining"),
-			"stats_ep_tap_user_queue_backfillremaining",
+			"Number of items in the backfill queues of user TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapUserQueueBackoff: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_user_queue_backoff"),
-			"stats_ep_tap_user_queue_backoff",
+			"Number of back-offs received per second while sending data over user TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpTapUserQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_user_queue_drain"),
-			"stats_ep_tap_user_queue_drain",
+			"Number of items per second being sent over user TAP connections to this bucket, i.e. removed from queue",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1012,7 +1040,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpTapUserQueueItemondisk: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tap_user_queue_itemondisk"),
-			"stats_ep_tap_user_queue_itemondisk",
+			"Number of items still on disk to be loaded for client TAP connections to this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1030,7 +1058,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpVbTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_vb_total"),
-			"stats_ep_vb_total",
+			"Total number of vBuckets for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1156,25 +1184,25 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbActiveEject: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_eject"),
-			"stats_vb_active_eject",
+			"Number of items per second being ejected to disk from active vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveItmMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_itm_memory"),
-			"stats_vb_active_itm_memory",
+			"Amount of active user data cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveMetaDataMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_meta_data_memory"),
-			"stats_vb_active_meta_data_memory",
+			"Amount of active item metadata consuming RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveNum: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_num"),
-			"stats_vb_active_num",
+			"Number of vBuckets in the active state for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1186,7 +1214,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbActiveOpsCreate: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_ops_create"),
-			"stats_vb_active_ops_create",
+			"New items per second being inserted into active vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1204,19 +1232,19 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbActiveQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_queue_drain"),
-			"stats_vb_active_queue_drain",
+			"Number of active items per second being written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveQueueFill: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_queue_fill"),
-			"stats_vb_active_queue_fill",
+			"Number of active items per second being put on the active item disk queue in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveQueueSize: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_active_queue_size"),
-			"stats_vb_active_queue_size",
+			"Number of active items waiting to be written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1228,55 +1256,55 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbAvgActiveQueueAge: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_avg_active_queue_age"),
-			"stats_vb_avg_active_queue_age",
+			"Average age in seconds of active items in the active item queue for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgPendingQueueAge: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_avg_pending_queue_age"),
-			"stats_vb_avg_pending_queue_age",
+			"Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgReplicaQueueAge: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_avg_replica_queue_age"),
-			"stats_vb_avg_replica_queue_age",
+			"Average age in seconds of replica items in the replica item queue for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgTotalQueueAge: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_avg_total_queue_age"),
-			"stats_vb_avg_total_queue_age",
+			"Average age in seconds of all items in the disk write queue for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingCurrItems: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_curr_items"),
-			"stats_vb_pending_curr_items",
+			"Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingEject: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_eject"),
-			"stats_vb_pending_eject",
+			"Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingItmMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_itm_memory"),
-			"stats_vb_pending_itm_memory",
+			"Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingMetaDataMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_meta_data_memory"),
-			"stats_vb_pending_meta_data_memory",
+			"Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingNum: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_num"),
-			"stats_vb_pending_num",
+			"Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1288,7 +1316,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbPendingOpsCreate: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_ops_create"),
-			"stats_vb_pending_ops_create",
+			"New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1306,55 +1334,55 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbPendingQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_queue_drain"),
-			"stats_vb_pending_queue_drain",
+			"Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingQueueFill: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_queue_fill"),
-			"stats_vb_pending_queue_fill",
+			"Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingQueueSize: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_queue_size"),
-			"stats_vb_pending_queue_size",
+			"Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingResidentItemsRatio: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_pending_resident_items_ratio"),
-			"stats_vb_pending_resident_items_ratio",
+			"Percentage of items in pending state vbuckets cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaCurrItems: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_curr_items"),
-			"stats_vb_replica_curr_items",
+			"Number of items in replica vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaEject: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_eject"),
-			"stats_vb_replica_eject",
+			"Number of items per second being ejected to disk from replica vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaItmMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_itm_memory"),
-			"stats_vb_replica_itm_memory",
+			"Amount of replica user data cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaMetaDataMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_meta_data_memory"),
-			"stats_vb_replica_meta_data_memory",
+			"Amount of replica item metadata consuming in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaNum: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_num"),
-			"stats_vb_replica_num",
+			"Number of vBuckets in the replica state for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1366,7 +1394,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbReplicaOpsCreate: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_ops_create"),
-			"stats_vb_replica_ops_create",
+			"New items per second being inserted into replica vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1384,25 +1412,25 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsVbReplicaQueueDrain: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_queue_drain"),
-			"stats_vb_replica_queue_drain",
+			"Number of replica items per second being written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaQueueFill: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_queue_fill"),
-			"stats_vb_replica_queue_fill",
+			"Number of replica items per second being put on the replica item disk queue in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaQueueSize: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_queue_size"),
-			"stats_vb_replica_queue_size",
+			"Number of replica items waiting to be written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaResidentItemsRatio: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_vb_replica_resident_items_ratio"),
-			"stats_vb_replica_resident_items_ratio",
+			"Percentage of replica items cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1414,7 +1442,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsXdcOps: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_xdc_ops"),
-			"stats_xdc_ops",
+			"Total XDCR operations per second for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1448,6 +1476,10 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsCouchDocsDataSize
 	ch <- c.statsCouchDocsActualDiskSize
 	ch <- c.statsCouchTotalDiskSize
+	ch <- c.statsCouchViewsDataSize
+	ch <- c.statsCouchViewsActualDiskSize
+	ch <- c.statsCouchViewsFragmentation
+	ch <- c.statsCouchViewsOps
 	ch <- c.statsCouchDocsFragmentation
 	ch <- c.statsCouchDocsDiskSize
 	ch <- c.statsCpuIdleMs
@@ -1672,6 +1704,10 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsCmdGet, prometheus.GaugeValue, last(stats.Op.Samples.CmdGet), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCmdSet, prometheus.GaugeValue, last(stats.Op.Samples.CmdSet), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCouchTotalDiskSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchTotalDiskSize), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCouchViewsDataSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchViewsDataSize), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCouchViewsActualDiskSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchViewsActualDiskSize), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCouchViewsFragmentation, prometheus.GaugeValue, last(stats.Op.Samples.CouchViewsFragmentation), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCouchViewsOps, prometheus.GaugeValue, last(stats.Op.Samples.CouchViewsOps), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCouchDocsActualDiskSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchDocsActualDiskSize), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCouchDocsFragmentation, prometheus.GaugeValue, last(stats.Op.Samples.CouchDocsFragmentation), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCouchDocsDataSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchDocsDataSize), bucket.Name)
