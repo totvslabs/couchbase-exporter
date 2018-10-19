@@ -14,19 +14,35 @@ echo "Init cluster..."
 docker exec test_cb1_1 couchbase-cli cluster-init \
 	--cluster-username=adm \
 	--cluster-password=secret \
-	--cluster-port=SAME \
+	--cluster-port=8091 \
 	--cluster-ramsize=256 \
 	--cluster-index-ramsize=256 \
 	--services=data,index,query,fts
 
 echo "Add nodes and rebalance..."
-docker exec test_cb1_1 couchbase-cli rebalance \
+docker exec test_cb1_1 couchbase-cli server-add \
 	-c localhost -u adm -p secret \
 	--server-add=172.21.0.11 \
+	--server-add-username=adm \
+	--server-add-password=secret \
+	--services=data,index,query,fts
+docker exec test_cb1_1 couchbase-cli server-add \
+	-c localhost -u adm -p secret \
 	--server-add=172.21.0.12 \
 	--server-add-username=adm \
 	--server-add-password=secret \
 	--services=data,index,query,fts
+docker exec test_cb1_1 couchbase-cli rebalance \
+	-c localhost -u adm -p secret
+
+echo "Create an user..."
+docker exec test_cb1_1 couchbase-cli user-manage \
+	-c localhost -u adm -p secret \
+	--set \
+	--rbac-username customer \
+	--roles admin \
+	--auth-domain local \
+	--rbac-password=secret
 
 echo "Create a bucket..."
 docker exec test_cb1_1 couchbase-cli bucket-create \
@@ -34,7 +50,8 @@ docker exec test_cb1_1 couchbase-cli bucket-create \
 	--bucket=customer \
 	--bucket-ramsize=100 \
 	--enable-index-replica=1 \
-	--bucket-replica=2
+	--bucket-replica=2 \
+	--bucket-type=couchbase
 
 ./generate-data &
 

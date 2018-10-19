@@ -2,19 +2,19 @@ version: '2'
 
 services:
   cb1:
-    image: couchbase/server:community-4.5.0
+    image: couchbase/server:community-5.1.1
     networks:
       cb4testnet:
         ipv4_address: 172.21.0.10
     ports:
     - 8091:8091
   cb2:
-    image: couchbase/server:community-4.5.0
+    image: couchbase/server:community-5.1.1
     networks:
       cb4testnet:
         ipv4_address: 172.21.0.11
   cb3:
-    image: couchbase/server:community-4.5.0
+    image: couchbase/server:community-5.1.1
     networks:
       cb4testnet:
         ipv4_address: 172.21.0.12

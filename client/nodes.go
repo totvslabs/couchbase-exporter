@@ -45,7 +45,7 @@ type Node struct {
 		EpBgFetched                  int     `json:"ep_bg_fetched"`
 		GetHits                      int     `json:"get_hits"`
 		MemUsed                      int     `json:"mem_used"`
-		Ops                          int     `json:"ops"`
+		Ops                          float64 `json:"ops"`
 		VbReplicaCurrItems           int     `json:"vb_replica_curr_items"`
 		VbActiveNumNonResidentNumber int     `json:"vb_active_num_non_residentNumber"` // couchbase 5.1.1
 	} `json:"interestingStats"`
