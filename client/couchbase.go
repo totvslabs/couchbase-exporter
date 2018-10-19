@@ -15,7 +15,6 @@ import (
 type Client struct {
 	baseURL string
 	client  http.Client
-	version string
 }
 
 // New creates a new couchbase client
@@ -33,19 +32,10 @@ func New(url, user, password string) (Client, error) {
 	if err != nil {
 		return client, errors.Wrap(err, "failed to get node details")
 	}
-	client.version = nodes.Version
-	log.Infof("couchbase %s", client.version)
+	if !strings.HasPrefix(nodes.Version, "5.") {
+		log.Warnf("couchbase %s is not fully supported", nodes.Version)
+	}
 	return client, nil
-}
-
-// IsCouchbase4 returns true if it is CB 4
-func (c Client) IsCouchbase4() bool {
-	return strings.HasPrefix(c.version, "4.")
-}
-
-// IsCouchbase5 returns true if it is CB 5
-func (c Client) IsCouchbase5() bool {
-	return strings.HasPrefix(c.version, "5.")
 }
 
 func (c Client) url(path string) string {

@@ -243,9 +243,7 @@ func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
-	if c.client.IsCouchbase5() {
-		ch <- prometheus.MustNewConstMetric(c.balanced, prometheus.GaugeValue, fromBool(cluster.Balanced))
-	}
+	ch <- prometheus.MustNewConstMetric(c.balanced, prometheus.GaugeValue, fromBool(cluster.Balanced))
 	ch <- prometheus.MustNewConstMetric(c.ftsMemoryQuota, prometheus.GaugeValue, float64(cluster.FtsMemoryQuota*1024*1024))
 	ch <- prometheus.MustNewConstMetric(c.indexMemoryQuota, prometheus.GaugeValue, float64(cluster.IndexMemoryQuota*1024*1024))
 	ch <- prometheus.MustNewConstMetric(c.memoryQuota, prometheus.GaugeValue, float64(cluster.MemoryQuota*1024*1024))

@@ -24,209 +24,177 @@ type bucketsCollector struct {
 	basicstatsOpspersec        *prometheus.Desc
 	basicstatsQuotapercentused *prometheus.Desc
 
-	statsAvgBgWaitTime                        *prometheus.Desc
-	statsAvgActiveTimestampDrift              *prometheus.Desc
-	statsAvgReplicaTimestampDrift             *prometheus.Desc
-	statsAvgDiskCommitTime                    *prometheus.Desc
-	statsAvgDiskUpdateTime                    *prometheus.Desc
-	statsBgWaitCount                          *prometheus.Desc
-	statsBgWaitTotal                          *prometheus.Desc
-	statsBytesRead                            *prometheus.Desc
-	statsBytesWritten                         *prometheus.Desc
-	statsCasBadval                            *prometheus.Desc
-	statsCasHits                              *prometheus.Desc
-	statsCasMisses                            *prometheus.Desc
-	statsCmdGet                               *prometheus.Desc
-	statsCmdSet                               *prometheus.Desc
-	statsCouchTotalDiskSize                   *prometheus.Desc
-	statsCouchViewsDataSize                   *prometheus.Desc
-	statsCouchViewsActualDiskSize             *prometheus.Desc
-	statsCouchViewsFragmentation              *prometheus.Desc
-	statsCouchViewsOps                        *prometheus.Desc
-	statsCouchDocsDataSize                    *prometheus.Desc
-	statsCouchDocsDiskSize                    *prometheus.Desc
-	statsCouchDocsActualDiskSize              *prometheus.Desc
-	statsCouchDocsFragmentation               *prometheus.Desc
-	statsCPUIdleMs                            *prometheus.Desc
-	statsCPULocalMs                           *prometheus.Desc
-	statsCPUUtilizationRate                   *prometheus.Desc
-	statsCurrConnections                      *prometheus.Desc
-	statsCurrItems                            *prometheus.Desc
-	statsCurrItemsTot                         *prometheus.Desc
-	statsDecrHits                             *prometheus.Desc
-	statsDecrMisses                           *prometheus.Desc
-	statsDeleteHits                           *prometheus.Desc
-	statsDeleteMisses                         *prometheus.Desc
-	statsDiskCommitCount                      *prometheus.Desc
-	statsDiskCommitTotal                      *prometheus.Desc
-	statsDiskUpdateCount                      *prometheus.Desc
-	statsDiskUpdateTotal                      *prometheus.Desc
-	statsDiskWriteQueue                       *prometheus.Desc
-	statsEpActiveAheadExceptions              *prometheus.Desc
-	statsEpActiveHlcDrift                     *prometheus.Desc
-	statsEpActiveHlcDriftCount                *prometheus.Desc
-	statsEpClockCasDriftThresholdExceeded     *prometheus.Desc
-	statsEpBgFetched                          *prometheus.Desc
-	statsEpCacheMissRate                      *prometheus.Desc
-	statsEpDcp2iBackoff                       *prometheus.Desc
-	statsEpDcp2iCount                         *prometheus.Desc
-	statsEpDcp2iItemsRemaining                *prometheus.Desc
-	statsEpDcp2iItemsSent                     *prometheus.Desc
-	statsEpDcp2iProducerCount                 *prometheus.Desc
-	statsEpDcp2iTotalBacklogSize              *prometheus.Desc
-	statsEpDcp2iTotalBytes                    *prometheus.Desc
-	statsEpDcpOtherBackoff                    *prometheus.Desc
-	statsEpDcpOtherCount                      *prometheus.Desc
-	statsEpDcpOtherItemsRemaining             *prometheus.Desc
-	statsEpDcpOtherItemsSent                  *prometheus.Desc
-	statsEpDcpOtherProducerCount              *prometheus.Desc
-	statsEpDcpOtherTotalBacklogSize           *prometheus.Desc
-	statsEpDcpOtherTotalBytes                 *prometheus.Desc
-	statsEpDcpReplicaBackoff                  *prometheus.Desc
-	statsEpDcpReplicaCount                    *prometheus.Desc
-	statsEpDcpReplicaItemsRemaining           *prometheus.Desc
-	statsEpDcpReplicaItemsSent                *prometheus.Desc
-	statsEpDcpReplicaProducerCount            *prometheus.Desc
-	statsEpDcpReplicaTotalBacklogSize         *prometheus.Desc
-	statsEpDcpReplicaTotalBytes               *prometheus.Desc
-	statsEpDcpViewsBackoff                    *prometheus.Desc
-	statsEpDcpViewsCount                      *prometheus.Desc
-	statsEpDcpViewsItemsRemaining             *prometheus.Desc
-	statsEpDcpViewsItemsSent                  *prometheus.Desc
-	statsEpDcpViewsProducerCount              *prometheus.Desc
-	statsEpDcpViewsTotalBacklogSize           *prometheus.Desc
-	statsEpDcpViewsTotalBytes                 *prometheus.Desc
-	statsEpDcpXdcrBackoff                     *prometheus.Desc
-	statsEpDcpXdcrCount                       *prometheus.Desc
-	statsEpDcpXdcrItemsRemaining              *prometheus.Desc
-	statsEpDcpXdcrItemsSent                   *prometheus.Desc
-	statsEpDcpXdcrProducerCount               *prometheus.Desc
-	statsEpDcpXdcrTotalBacklogSize            *prometheus.Desc
-	statsEpDcpXdcrTotalBytes                  *prometheus.Desc
-	statsEpDiskqueueDrain                     *prometheus.Desc
-	statsEpDiskqueueFill                      *prometheus.Desc
-	statsEpDiskqueueItems                     *prometheus.Desc
-	statsEpFlusherTodo                        *prometheus.Desc
-	statsEpItemCommitFailed                   *prometheus.Desc
-	statsEpKvSize                             *prometheus.Desc
-	statsEpMaxSize                            *prometheus.Desc
-	statsEpMemHighWat                         *prometheus.Desc
-	statsEpMemLowWat                          *prometheus.Desc
-	statsEpMetaDataMemory                     *prometheus.Desc
-	statsEpNumNonResident                     *prometheus.Desc
-	statsEpNumOpsDelMeta                      *prometheus.Desc
-	statsEpNumOpsDelRetMeta                   *prometheus.Desc
-	statsEpNumOpsGetMeta                      *prometheus.Desc
-	statsEpNumOpsSetMeta                      *prometheus.Desc
-	statsEpNumOpsSetRetMeta                   *prometheus.Desc
-	statsEpNumValueEjects                     *prometheus.Desc
-	statsEpOomErrors                          *prometheus.Desc
-	statsEpOpsCreate                          *prometheus.Desc
-	statsEpOpsUpdate                          *prometheus.Desc
-	statsEpOverhead                           *prometheus.Desc
-	statsEpQueueSize                          *prometheus.Desc
-	statsEpResidentItemsRate                  *prometheus.Desc
-	statsEpTapRebalanceCount                  *prometheus.Desc
-	statsEpTapRebalanceQlen                   *prometheus.Desc
-	statsEpTapRebalanceQueueBackfillremaining *prometheus.Desc
-	statsEpTapRebalanceQueueBackoff           *prometheus.Desc
-	statsEpTapRebalanceQueueDrain             *prometheus.Desc
-	statsEpTapRebalanceQueueFill              *prometheus.Desc
-	statsEpTapRebalanceQueueItemondisk        *prometheus.Desc
-	statsEpTapRebalanceTotalBacklogSize       *prometheus.Desc
-	statsEpTapReplicaCount                    *prometheus.Desc
-	statsEpTapReplicaQlen                     *prometheus.Desc
-	statsEpTapReplicaQueueBackfillremaining   *prometheus.Desc
-	statsEpTapReplicaQueueBackoff             *prometheus.Desc
-	statsEpTapReplicaQueueDrain               *prometheus.Desc
-	statsEpTapReplicaQueueFill                *prometheus.Desc
-	statsEpTapReplicaQueueItemondisk          *prometheus.Desc
-	statsEpTapReplicaTotalBacklogSize         *prometheus.Desc
-	statsEpTapTotalCount                      *prometheus.Desc
-	statsEpTapTotalQlen                       *prometheus.Desc
-	statsEpTapTotalQueueBackfillremaining     *prometheus.Desc
-	statsEpTapTotalQueueBackoff               *prometheus.Desc
-	statsEpTapTotalQueueDrain                 *prometheus.Desc
-	statsEpTapTotalQueueFill                  *prometheus.Desc
-	statsEpTapTotalQueueItemondisk            *prometheus.Desc
-	statsEpTapTotalTotalBacklogSize           *prometheus.Desc
-	statsEpTapUserCount                       *prometheus.Desc
-	statsEpTapUserQlen                        *prometheus.Desc
-	statsEpTapUserQueueBackfillremaining      *prometheus.Desc
-	statsEpTapUserQueueBackoff                *prometheus.Desc
-	statsEpTapUserQueueDrain                  *prometheus.Desc
-	statsEpTapUserQueueFill                   *prometheus.Desc
-	statsEpTapUserQueueItemondisk             *prometheus.Desc
-	statsEpTapUserTotalBacklogSize            *prometheus.Desc
-	statsEpReplicaAheadExceptions             *prometheus.Desc
-	statsEpReplicaHlcDrift                    *prometheus.Desc
-	statsEpReplicaHlcDriftCount               *prometheus.Desc
-	statsEpTmpOomErrors                       *prometheus.Desc
-	statsEpVbTotal                            *prometheus.Desc
-	statsEvictions                            *prometheus.Desc
-	statsGetHits                              *prometheus.Desc
-	statsGetMisses                            *prometheus.Desc
-	statsHibernatedRequests                   *prometheus.Desc
-	statsHibernatedWaked                      *prometheus.Desc
-	statsHitRatio                             *prometheus.Desc
-	statsIncrHits                             *prometheus.Desc
-	statsIncrMisses                           *prometheus.Desc
-	statsMemActualFree                        *prometheus.Desc
-	statsMemActualUsed                        *prometheus.Desc
-	statsMemFree                              *prometheus.Desc
-	statsMemTotal                             *prometheus.Desc
-	statsMemUsed                              *prometheus.Desc
-	statsMemUsedSys                           *prometheus.Desc
-	statsMisses                               *prometheus.Desc
-	statsOps                                  *prometheus.Desc
-	statsRestRequests                         *prometheus.Desc
-	statsSwapTotal                            *prometheus.Desc
-	statsSwapUsed                             *prometheus.Desc
-	statsTimestamp                            *prometheus.Desc
-	statsVbActiveEject                        *prometheus.Desc
-	statsVbActiveItmMemory                    *prometheus.Desc
-	statsVbActiveMetaDataMemory               *prometheus.Desc
-	statsVbActiveNum                          *prometheus.Desc
-	statsVbActiveNumNonResident               *prometheus.Desc
-	statsVbActiveOpsCreate                    *prometheus.Desc
-	statsVbActiveOpsUpdate                    *prometheus.Desc
-	statsVbActiveQueueAge                     *prometheus.Desc
-	statsVbActiveQueueDrain                   *prometheus.Desc
-	statsVbActiveQueueFill                    *prometheus.Desc
-	statsVbActiveQueueSize                    *prometheus.Desc
-	statsVbActiveResidentItemsRatio           *prometheus.Desc
-	statsVbAvgActiveQueueAge                  *prometheus.Desc
-	statsVbAvgPendingQueueAge                 *prometheus.Desc
-	statsVbAvgReplicaQueueAge                 *prometheus.Desc
-	statsVbAvgTotalQueueAge                   *prometheus.Desc
-	statsVbPendingCurrItems                   *prometheus.Desc
-	statsVbPendingEject                       *prometheus.Desc
-	statsVbPendingItmMemory                   *prometheus.Desc
-	statsVbPendingMetaDataMemory              *prometheus.Desc
-	statsVbPendingNum                         *prometheus.Desc
-	statsVbPendingNumNonResident              *prometheus.Desc
-	statsVbPendingOpsCreate                   *prometheus.Desc
-	statsVbPendingOpsUpdate                   *prometheus.Desc
-	statsVbPendingQueueAge                    *prometheus.Desc
-	statsVbPendingQueueDrain                  *prometheus.Desc
-	statsVbPendingQueueFill                   *prometheus.Desc
-	statsVbPendingQueueSize                   *prometheus.Desc
-	statsVbPendingResidentItemsRatio          *prometheus.Desc
-	statsVbReplicaCurrItems                   *prometheus.Desc
-	statsVbReplicaEject                       *prometheus.Desc
-	statsVbReplicaItmMemory                   *prometheus.Desc
-	statsVbReplicaMetaDataMemory              *prometheus.Desc
-	statsVbReplicaNum                         *prometheus.Desc
-	statsVbReplicaNumNonResident              *prometheus.Desc
-	statsVbReplicaOpsCreate                   *prometheus.Desc
-	statsVbReplicaOpsUpdate                   *prometheus.Desc
-	statsVbReplicaQueueAge                    *prometheus.Desc
-	statsVbReplicaQueueDrain                  *prometheus.Desc
-	statsVbReplicaQueueFill                   *prometheus.Desc
-	statsVbReplicaQueueSize                   *prometheus.Desc
-	statsVbReplicaResidentItemsRatio          *prometheus.Desc
-	statsVbTotalQueueAge                      *prometheus.Desc
-	statsXdcOps                               *prometheus.Desc
+	statsAvgBgWaitTime                    *prometheus.Desc
+	statsAvgActiveTimestampDrift          *prometheus.Desc
+	statsAvgReplicaTimestampDrift         *prometheus.Desc
+	statsAvgDiskCommitTime                *prometheus.Desc
+	statsAvgDiskUpdateTime                *prometheus.Desc
+	statsBgWaitCount                      *prometheus.Desc
+	statsBgWaitTotal                      *prometheus.Desc
+	statsBytesRead                        *prometheus.Desc
+	statsBytesWritten                     *prometheus.Desc
+	statsCasBadval                        *prometheus.Desc
+	statsCasHits                          *prometheus.Desc
+	statsCasMisses                        *prometheus.Desc
+	statsCmdGet                           *prometheus.Desc
+	statsCmdSet                           *prometheus.Desc
+	statsCouchTotalDiskSize               *prometheus.Desc
+	statsCouchViewsDataSize               *prometheus.Desc
+	statsCouchViewsActualDiskSize         *prometheus.Desc
+	statsCouchViewsFragmentation          *prometheus.Desc
+	statsCouchViewsOps                    *prometheus.Desc
+	statsCouchDocsDataSize                *prometheus.Desc
+	statsCouchDocsDiskSize                *prometheus.Desc
+	statsCouchDocsActualDiskSize          *prometheus.Desc
+	statsCouchDocsFragmentation           *prometheus.Desc
+	statsCPUIdleMs                        *prometheus.Desc
+	statsCPULocalMs                       *prometheus.Desc
+	statsCPUUtilizationRate               *prometheus.Desc
+	statsCurrConnections                  *prometheus.Desc
+	statsCurrItems                        *prometheus.Desc
+	statsCurrItemsTot                     *prometheus.Desc
+	statsDecrHits                         *prometheus.Desc
+	statsDecrMisses                       *prometheus.Desc
+	statsDeleteHits                       *prometheus.Desc
+	statsDeleteMisses                     *prometheus.Desc
+	statsDiskCommitCount                  *prometheus.Desc
+	statsDiskCommitTotal                  *prometheus.Desc
+	statsDiskUpdateCount                  *prometheus.Desc
+	statsDiskUpdateTotal                  *prometheus.Desc
+	statsDiskWriteQueue                   *prometheus.Desc
+	statsEpActiveAheadExceptions          *prometheus.Desc
+	statsEpActiveHlcDrift                 *prometheus.Desc
+	statsEpActiveHlcDriftCount            *prometheus.Desc
+	statsEpClockCasDriftThresholdExceeded *prometheus.Desc
+	statsEpBgFetched                      *prometheus.Desc
+	statsEpCacheMissRate                  *prometheus.Desc
+	statsEpDcp2iBackoff                   *prometheus.Desc
+	statsEpDcp2iCount                     *prometheus.Desc
+	statsEpDcp2iItemsRemaining            *prometheus.Desc
+	statsEpDcp2iItemsSent                 *prometheus.Desc
+	statsEpDcp2iProducerCount             *prometheus.Desc
+	statsEpDcp2iTotalBacklogSize          *prometheus.Desc
+	statsEpDcp2iTotalBytes                *prometheus.Desc
+	statsEpDcpOtherBackoff                *prometheus.Desc
+	statsEpDcpOtherCount                  *prometheus.Desc
+	statsEpDcpOtherItemsRemaining         *prometheus.Desc
+	statsEpDcpOtherItemsSent              *prometheus.Desc
+	statsEpDcpOtherProducerCount          *prometheus.Desc
+	statsEpDcpOtherTotalBacklogSize       *prometheus.Desc
+	statsEpDcpOtherTotalBytes             *prometheus.Desc
+	statsEpDcpReplicaBackoff              *prometheus.Desc
+	statsEpDcpReplicaCount                *prometheus.Desc
+	statsEpDcpReplicaItemsRemaining       *prometheus.Desc
+	statsEpDcpReplicaItemsSent            *prometheus.Desc
+	statsEpDcpReplicaProducerCount        *prometheus.Desc
+	statsEpDcpReplicaTotalBacklogSize     *prometheus.Desc
+	statsEpDcpReplicaTotalBytes           *prometheus.Desc
+	statsEpDcpViewsBackoff                *prometheus.Desc
+	statsEpDcpViewsCount                  *prometheus.Desc
+	statsEpDcpViewsItemsRemaining         *prometheus.Desc
+	statsEpDcpViewsItemsSent              *prometheus.Desc
+	statsEpDcpViewsProducerCount          *prometheus.Desc
+	statsEpDcpViewsTotalBacklogSize       *prometheus.Desc
+	statsEpDcpViewsTotalBytes             *prometheus.Desc
+	statsEpDcpXdcrBackoff                 *prometheus.Desc
+	statsEpDcpXdcrCount                   *prometheus.Desc
+	statsEpDcpXdcrItemsRemaining          *prometheus.Desc
+	statsEpDcpXdcrItemsSent               *prometheus.Desc
+	statsEpDcpXdcrProducerCount           *prometheus.Desc
+	statsEpDcpXdcrTotalBacklogSize        *prometheus.Desc
+	statsEpDcpXdcrTotalBytes              *prometheus.Desc
+	statsEpDiskqueueDrain                 *prometheus.Desc
+	statsEpDiskqueueFill                  *prometheus.Desc
+	statsEpDiskqueueItems                 *prometheus.Desc
+	statsEpFlusherTodo                    *prometheus.Desc
+	statsEpItemCommitFailed               *prometheus.Desc
+	statsEpKvSize                         *prometheus.Desc
+	statsEpMaxSize                        *prometheus.Desc
+	statsEpMemHighWat                     *prometheus.Desc
+	statsEpMemLowWat                      *prometheus.Desc
+	statsEpMetaDataMemory                 *prometheus.Desc
+	statsEpNumNonResident                 *prometheus.Desc
+	statsEpNumOpsDelMeta                  *prometheus.Desc
+	statsEpNumOpsDelRetMeta               *prometheus.Desc
+	statsEpNumOpsGetMeta                  *prometheus.Desc
+	statsEpNumOpsSetMeta                  *prometheus.Desc
+	statsEpNumOpsSetRetMeta               *prometheus.Desc
+	statsEpNumValueEjects                 *prometheus.Desc
+	statsEpOomErrors                      *prometheus.Desc
+	statsEpOpsCreate                      *prometheus.Desc
+	statsEpOpsUpdate                      *prometheus.Desc
+	statsEpOverhead                       *prometheus.Desc
+	statsEpQueueSize                      *prometheus.Desc
+	statsEpResidentItemsRate              *prometheus.Desc
+	statsEpReplicaAheadExceptions         *prometheus.Desc
+	statsEpReplicaHlcDrift                *prometheus.Desc
+	statsEpReplicaHlcDriftCount           *prometheus.Desc
+	statsEpTmpOomErrors                   *prometheus.Desc
+	statsEpVbTotal                        *prometheus.Desc
+	statsEvictions                        *prometheus.Desc
+	statsGetHits                          *prometheus.Desc
+	statsGetMisses                        *prometheus.Desc
+	statsHibernatedRequests               *prometheus.Desc
+	statsHibernatedWaked                  *prometheus.Desc
+	statsHitRatio                         *prometheus.Desc
+	statsIncrHits                         *prometheus.Desc
+	statsIncrMisses                       *prometheus.Desc
+	statsMemActualFree                    *prometheus.Desc
+	statsMemActualUsed                    *prometheus.Desc
+	statsMemFree                          *prometheus.Desc
+	statsMemTotal                         *prometheus.Desc
+	statsMemUsed                          *prometheus.Desc
+	statsMemUsedSys                       *prometheus.Desc
+	statsMisses                           *prometheus.Desc
+	statsOps                              *prometheus.Desc
+	statsRestRequests                     *prometheus.Desc
+	statsSwapTotal                        *prometheus.Desc
+	statsSwapUsed                         *prometheus.Desc
+	statsTimestamp                        *prometheus.Desc
+	statsVbActiveEject                    *prometheus.Desc
+	statsVbActiveItmMemory                *prometheus.Desc
+	statsVbActiveMetaDataMemory           *prometheus.Desc
+	statsVbActiveNum                      *prometheus.Desc
+	statsVbActiveNumNonResident           *prometheus.Desc
+	statsVbActiveOpsCreate                *prometheus.Desc
+	statsVbActiveOpsUpdate                *prometheus.Desc
+	statsVbActiveQueueAge                 *prometheus.Desc
+	statsVbActiveQueueDrain               *prometheus.Desc
+	statsVbActiveQueueFill                *prometheus.Desc
+	statsVbActiveQueueSize                *prometheus.Desc
+	statsVbActiveResidentItemsRatio       *prometheus.Desc
+	statsVbAvgActiveQueueAge              *prometheus.Desc
+	statsVbAvgPendingQueueAge             *prometheus.Desc
+	statsVbAvgReplicaQueueAge             *prometheus.Desc
+	statsVbAvgTotalQueueAge               *prometheus.Desc
+	statsVbPendingCurrItems               *prometheus.Desc
+	statsVbPendingEject                   *prometheus.Desc
+	statsVbPendingItmMemory               *prometheus.Desc
+	statsVbPendingMetaDataMemory          *prometheus.Desc
+	statsVbPendingNum                     *prometheus.Desc
+	statsVbPendingNumNonResident          *prometheus.Desc
+	statsVbPendingOpsCreate               *prometheus.Desc
+	statsVbPendingOpsUpdate               *prometheus.Desc
+	statsVbPendingQueueAge                *prometheus.Desc
+	statsVbPendingQueueDrain              *prometheus.Desc
+	statsVbPendingQueueFill               *prometheus.Desc
+	statsVbPendingQueueSize               *prometheus.Desc
+	statsVbPendingResidentItemsRatio      *prometheus.Desc
+	statsVbReplicaCurrItems               *prometheus.Desc
+	statsVbReplicaEject                   *prometheus.Desc
+	statsVbReplicaItmMemory               *prometheus.Desc
+	statsVbReplicaMetaDataMemory          *prometheus.Desc
+	statsVbReplicaNum                     *prometheus.Desc
+	statsVbReplicaNumNonResident          *prometheus.Desc
+	statsVbReplicaOpsCreate               *prometheus.Desc
+	statsVbReplicaOpsUpdate               *prometheus.Desc
+	statsVbReplicaQueueAge                *prometheus.Desc
+	statsVbReplicaQueueDrain              *prometheus.Desc
+	statsVbReplicaQueueFill               *prometheus.Desc
+	statsVbReplicaQueueSize               *prometheus.Desc
+	statsVbReplicaResidentItemsRatio      *prometheus.Desc
+	statsVbTotalQueueAge                  *prometheus.Desc
+	statsXdcOps                           *prometheus.Desc
 }
 
 // NewBucketsCollector buckets collector
@@ -903,198 +871,6 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			[]string{"bucket"},
 			nil,
 		),
-		statsEpTapRebalanceCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_count"),
-			"Number of internal rebalancing TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceQlen: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_qlen"),
-			"Number of items in the rebalance TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceQueueBackfillremaining: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_queue_backfillremaining"),
-			"Number of items in the backfill queues of rebalancing TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceQueueBackoff: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_queue_backoff"),
-			"Number of back-offs received per second while sending data over rebalancing TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_queue_drain"),
-			"Number of items per second being sent over rebalancing TAP connections to this bucket, i.e. removed from queue",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_queue_fill"),
-			"stats_ep_tap_rebalance_queue_fill",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceQueueItemondisk: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_queue_itemondisk"),
-			"Number of items still on disk to be loaded for rebalancing TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapRebalanceTotalBacklogSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_rebalance_total_backlog_size"),
-			"stats_ep_tap_rebalance_total_backlog_size",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_count"),
-			"Number of internal replication TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaQlen: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_qlen"),
-			"Number of items in the replication TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaQueueBackfillremaining: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_queue_backfillremaining"),
-			"Number of items in the backfill queues of replication TAP connections for this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaQueueBackoff: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_queue_backoff"),
-			"Number of back-offs received per second while sending data over replication TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_queue_drain"),
-			"Number of items per second being sent over replication TAP connections to this bucket, i.e. removed from queue",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_queue_fill"),
-			"Total enqueued replica items on disk queue",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaQueueItemondisk: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_queue_itemondisk"),
-			"Number of items still on disk to be loaded for replication TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapReplicaTotalBacklogSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_replica_total_backlog_size"),
-			"Number of replica items in this bucket remaining for replication",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_count"),
-			"Total number of internal TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalQlen: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_qlen"),
-			"Total number of items in TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalQueueBackfillremaining: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_queue_backfillremaining"),
-			"Total number of items in the backfill queues of TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalQueueBackoff: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_queue_backoff"),
-			"Total number of back-offs received per second while sending data over TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_queue_drain"),
-			"Total number of items per second being sent over TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_queue_fill"),
-			"Total enqueued items in the queue",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalQueueItemondisk: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_queue_itemondisk"),
-			"Total number of items still on disk to be loaded for TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapTotalTotalBacklogSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_total_total_backlog_size"),
-			"Number of remaining items for replication",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_count"),
-			"Number of internal user TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserQlen: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_qlen"),
-			"Number of items in user TAP queues in this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserQueueBackfillremaining: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_queue_backfillremaining"),
-			"Number of items in the backfill queues of user TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserQueueBackoff: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_queue_backoff"),
-			"Number of back-offs received per second while sending data over user TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_queue_drain"),
-			"Number of items per second being sent over user TAP connections to this bucket, i.e. removed from queue",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_queue_fill"),
-			"stats_ep_tap_user_queue_fill",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserQueueItemondisk: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_queue_itemondisk"),
-			"Number of items still on disk to be loaded for client TAP connections to this bucket",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpTapUserTotalBacklogSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_tap_user_total_backlog_size"),
-			"stats_ep_tap_user_total_backlog_size",
-			[]string{"bucket"},
-			nil,
-		),
 		statsEpReplicaAheadExceptions: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "stats_ep_replica_ahead_exceptions"),
 			"ep_replica_ahead_exceptions",
@@ -1626,45 +1402,9 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsEpOverhead
 	ch <- c.statsEpQueueSize
 	ch <- c.statsEpResidentItemsRate
-	if c.client.IsCouchbase4() {
-		ch <- c.statsEpTapRebalanceCount
-		ch <- c.statsEpTapRebalanceQlen
-		ch <- c.statsEpTapRebalanceQueueBackfillremaining
-		ch <- c.statsEpTapRebalanceQueueBackoff
-		ch <- c.statsEpTapRebalanceQueueDrain
-		ch <- c.statsEpTapRebalanceQueueFill
-		ch <- c.statsEpTapRebalanceQueueItemondisk
-		ch <- c.statsEpTapRebalanceTotalBacklogSize
-		ch <- c.statsEpTapReplicaCount
-		ch <- c.statsEpTapReplicaQlen
-		ch <- c.statsEpTapReplicaQueueBackfillremaining
-		ch <- c.statsEpTapReplicaQueueBackoff
-		ch <- c.statsEpTapReplicaQueueDrain
-		ch <- c.statsEpTapReplicaQueueFill
-		ch <- c.statsEpTapReplicaQueueItemondisk
-		ch <- c.statsEpTapReplicaTotalBacklogSize
-		ch <- c.statsEpTapTotalCount
-		ch <- c.statsEpTapTotalQlen
-		ch <- c.statsEpTapTotalQueueBackfillremaining
-		ch <- c.statsEpTapTotalQueueBackoff
-		ch <- c.statsEpTapTotalQueueDrain
-		ch <- c.statsEpTapTotalQueueFill
-		ch <- c.statsEpTapTotalQueueItemondisk
-		ch <- c.statsEpTapTotalTotalBacklogSize
-		ch <- c.statsEpTapUserCount
-		ch <- c.statsEpTapUserQlen
-		ch <- c.statsEpTapUserQueueBackfillremaining
-		ch <- c.statsEpTapUserQueueBackoff
-		ch <- c.statsEpTapUserQueueDrain
-		ch <- c.statsEpTapUserQueueFill
-		ch <- c.statsEpTapUserQueueItemondisk
-		ch <- c.statsEpTapUserTotalBacklogSize
-	}
-	if c.client.IsCouchbase5() {
-		ch <- c.statsEpReplicaAheadExceptions
-		ch <- c.statsEpReplicaHlcDrift
-		ch <- c.statsEpReplicaHlcDriftCount
-	}
+	ch <- c.statsEpReplicaAheadExceptions
+	ch <- c.statsEpReplicaHlcDrift
+	ch <- c.statsEpReplicaHlcDriftCount
 	ch <- c.statsEpTmpOomErrors
 	ch <- c.statsEpVbTotal
 	ch <- c.statsEvictions
@@ -1760,7 +1500,7 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		// TODO: collect bucket.Nodes metrics as well
 
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, float64(bucket.BasicStats.DataUsed), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, float64(bucket.BasicStats.DiskFetchs), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, float64(bucket.BasicStats.DiskFetches), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskused, prometheus.GaugeValue, float64(bucket.BasicStats.DiskUsed), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsItemcount, prometheus.GaugeValue, float64(bucket.BasicStats.ItemCount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsMemused, prometheus.GaugeValue, float64(bucket.BasicStats.MemUsed), bucket.Name)
@@ -1768,12 +1508,8 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BasicStats.QuotaPercentUsed, bucket.Name)
 
 		ch <- prometheus.MustNewConstMetric(c.statsAvgBgWaitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgBgWaitTime), bucket.Name)
-
-		if c.client.IsCouchbase5() {
-			ch <- prometheus.MustNewConstMetric(c.statsAvgActiveTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgActiveTimestampDrift), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsAvgReplicaTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgReplicaTimestampDrift), bucket.Name)
-		}
-
+		ch <- prometheus.MustNewConstMetric(c.statsAvgActiveTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgActiveTimestampDrift), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsAvgReplicaTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgReplicaTimestampDrift), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskCommitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskCommitTime), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskUpdateTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskUpdateTime), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsBgWaitCount, prometheus.GaugeValue, last(stats.Op.Samples.BgWaitCount), bucket.Name)
@@ -1809,14 +1545,10 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsDiskUpdateCount, prometheus.GaugeValue, last(stats.Op.Samples.DiskUpdateCount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskUpdateTotal, prometheus.GaugeValue, last(stats.Op.Samples.DiskUpdateTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskWriteQueue, prometheus.GaugeValue, last(stats.Op.Samples.DiskWriteQueue), bucket.Name)
-
-		if c.client.IsCouchbase5() {
-			ch <- prometheus.MustNewConstMetric(c.statsEpActiveAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveAheadExceptions), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDrift), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDriftCount), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpClockCasDriftThresholdExceeded, prometheus.GaugeValue, last(stats.Op.Samples.EpClockCasDriftThresholdExceeded), bucket.Name)
-		}
-
+		ch <- prometheus.MustNewConstMetric(c.statsEpActiveAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveAheadExceptions), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDrift), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDriftCount), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsEpClockCasDriftThresholdExceeded, prometheus.GaugeValue, last(stats.Op.Samples.EpClockCasDriftThresholdExceeded), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpBgFetched, prometheus.GaugeValue, last(stats.Op.Samples.EpBgFetched), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpCacheMissRate, prometheus.GaugeValue, last(stats.Op.Samples.EpCacheMissRate), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpDcp2iBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpDcp2IBackoff), bucket.Name)
@@ -1877,46 +1609,9 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsEpOverhead, prometheus.GaugeValue, last(stats.Op.Samples.EpOverhead), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpQueueSize, prometheus.GaugeValue, last(stats.Op.Samples.EpQueueSize), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpResidentItemsRate, prometheus.GaugeValue, last(stats.Op.Samples.EpResidentItemsRate), bucket.Name)
-
-		if c.client.IsCouchbase4() {
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceCount), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQlen), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueBackfillremaining), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueBackoff), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueDrain), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueFill), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueItemondisk), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceTotalBacklogSize), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaCount), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQlen), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueBackfillremaining), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueBackoff), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueDrain), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueFill), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueItemondisk), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaTotalBacklogSize), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalCount), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQlen), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueBackfillremaining), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueBackoff), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueDrain), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueFill), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueItemondisk), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalTotalBacklogSize), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserCount), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQlen), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueBackfillremaining), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueBackoff), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueDrain), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueFill), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueItemondisk), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserTotalBacklogSize), bucket.Name)
-		}
-		if c.client.IsCouchbase5() {
-			ch <- prometheus.MustNewConstMetric(c.statsEpReplicaAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaAheadExceptions), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDrift), bucket.Name)
-			ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDriftCount), bucket.Name)
-		}
+		ch <- prometheus.MustNewConstMetric(c.statsEpReplicaAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaAheadExceptions), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDrift), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDriftCount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpTmpOomErrors, prometheus.GaugeValue, last(stats.Op.Samples.EpTmpOomErrors), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpVbTotal, prometheus.GaugeValue, last(stats.Op.Samples.EpVbTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEvictions, prometheus.GaugeValue, last(stats.Op.Samples.Evictions), bucket.Name)
