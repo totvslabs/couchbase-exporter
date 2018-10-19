@@ -19,6 +19,11 @@ var (
 	couchbaseURL      = kingpin.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
 	couchbaseUsername = kingpin.Flag("couchbase.username", "Couchbase username").String()
 	couchbasePassword = kingpin.Flag("couchbase.password", "Couchbase password").String()
+
+	tasks   = kingpin.Flag("collectors.tasks", "Wether to collect tasks metrics").Default("true").Bool()
+	buckets = kingpin.Flag("collectors.buckets", "Wether to collect buckets metrics").Default("true").Bool()
+	nodes   = kingpin.Flag("collectors.nodes", "Wether to collect nodes metrics").Default("true").Bool()
+	cluster = kingpin.Flag("collectors.cluster", "Wether to collect cluster metrics").Default("true").Bool()
 )
 
 func main() {
@@ -26,17 +31,25 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
-	log.Info("starting couchbase-exporter", version)
+	log.Infof("starting couchbase-exporter %s...", version)
 
 	client, err := client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
 	if err != nil {
 		log.Fatalf("failed to create couchbase client: %v", err)
 	}
 
-	prometheus.MustRegister(collector.NewTasksCollector(client))
-	prometheus.MustRegister(collector.NewBucketsCollector(client))
-	prometheus.MustRegister(collector.NewNodesCollector(client))
-	prometheus.MustRegister(collector.NewClusterCollector(client))
+	if *tasks {
+		prometheus.MustRegister(collector.NewTasksCollector(client))
+	}
+	if *buckets {
+		prometheus.MustRegister(collector.NewBucketsCollector(client))
+	}
+	if *nodes {
+		prometheus.MustRegister(collector.NewNodesCollector(client))
+	}
+	if *cluster {
+		prometheus.MustRegister(collector.NewClusterCollector(client))
+	}
 
 	http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
