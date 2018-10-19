@@ -22,17 +22,17 @@ type nodesCollector struct {
 // TODO: implement this
 //
 func NewNodesCollector(client client.Client) prometheus.Collector {
-	const ns = "nodes"
+	const subsystem = "nodes"
 	return &nodesCollector{
 		client: client,
 		up: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "up"),
+			prometheus.BuildFQName(namespace, subsystem, "up"),
 			"Couchbase nodes API is responding",
 			nil,
 			nil,
 		),
 		scrapeDuration: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "scrape_duration_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "scrape_duration_seconds"),
 			"Scrape duration in seconds",
 			nil,
 			nil,

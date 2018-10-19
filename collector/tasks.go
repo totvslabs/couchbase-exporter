@@ -25,35 +25,35 @@ type taskCollector struct {
 // TODO: add PerNode metrics
 //
 func NewTasksCollector(client client.Client) prometheus.Collector {
-	const ns = "task"
+	const subsystem = "task"
 	return &taskCollector{
 		client: client,
 		up: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "up"),
+			prometheus.BuildFQName(namespace, subsystem, "up"),
 			"Couchbase task API is responding",
 			nil,
 			nil,
 		),
 		scrapeDuration: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "scrape_duration_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "scrape_duration_seconds"),
 			"Scrape duration in seconds",
 			nil,
 			nil,
 		),
 		rebalance: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "rebalance_progress"),
+			prometheus.BuildFQName(namespace, subsystem, "rebalance_progress"),
 			"Progress of a rebalance task",
 			nil,
 			nil,
 		),
 		rebalancePerNode: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "node_rebalance_progress"),
+			prometheus.BuildFQName(namespace, subsystem, "node_rebalance_progress"),
 			"Progress of a rebalance task per node",
 			[]string{"node"},
 			nil,
 		),
 		compacting: prometheus.NewDesc(
-			prometheus.BuildFQName(globalNamespace, ns, "compacting_progress"),
+			prometheus.BuildFQName(namespace, subsystem, "compacting_progress"),
 			"Progress of a bucket compaction task",
 			[]string{"bucket"},
 			nil,

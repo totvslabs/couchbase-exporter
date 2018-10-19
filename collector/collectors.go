@@ -1,6 +1,6 @@
 package collector
 
-const globalNamespace = "couchbase"
+const namespace = "couchbase"
 
 func fromBool(i bool) float64 {
 	if i {
