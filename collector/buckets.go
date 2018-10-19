@@ -16,14 +16,17 @@ type bucketsCollector struct {
 	up             *prometheus.Desc
 	scrapeDuration *prometheus.Desc
 
-	basicstatsDataused                        *prometheus.Desc
-	basicstatsDiskfetches                     *prometheus.Desc
-	basicstatsDiskused                        *prometheus.Desc
-	basicstatsItemcount                       *prometheus.Desc
-	basicstatsMemused                         *prometheus.Desc
-	basicstatsOpspersec                       *prometheus.Desc
-	basicstatsQuotapercentused                *prometheus.Desc
+	basicstatsDataused         *prometheus.Desc
+	basicstatsDiskfetches      *prometheus.Desc
+	basicstatsDiskused         *prometheus.Desc
+	basicstatsItemcount        *prometheus.Desc
+	basicstatsMemused          *prometheus.Desc
+	basicstatsOpspersec        *prometheus.Desc
+	basicstatsQuotapercentused *prometheus.Desc
+
 	statsAvgBgWaitTime                        *prometheus.Desc
+	statsAvgActiveTimestampDrift              *prometheus.Desc
+	statsAvgReplicaTimestampDrift             *prometheus.Desc
 	statsAvgDiskCommitTime                    *prometheus.Desc
 	statsAvgDiskUpdateTime                    *prometheus.Desc
 	statsBgWaitCount                          *prometheus.Desc
@@ -44,9 +47,9 @@ type bucketsCollector struct {
 	statsCouchDocsDiskSize                    *prometheus.Desc
 	statsCouchDocsActualDiskSize              *prometheus.Desc
 	statsCouchDocsFragmentation               *prometheus.Desc
-	statsCpuIdleMs                            *prometheus.Desc
-	statsCpuLocalMs                           *prometheus.Desc
-	statsCpuUtilizationRate                   *prometheus.Desc
+	statsCPUIdleMs                            *prometheus.Desc
+	statsCPULocalMs                           *prometheus.Desc
+	statsCPUUtilizationRate                   *prometheus.Desc
 	statsCurrConnections                      *prometheus.Desc
 	statsCurrItems                            *prometheus.Desc
 	statsCurrItemsTot                         *prometheus.Desc
@@ -59,6 +62,10 @@ type bucketsCollector struct {
 	statsDiskUpdateCount                      *prometheus.Desc
 	statsDiskUpdateTotal                      *prometheus.Desc
 	statsDiskWriteQueue                       *prometheus.Desc
+	statsEpActiveAheadExceptions              *prometheus.Desc
+	statsEpActiveHlcDrift                     *prometheus.Desc
+	statsEpActiveHlcDriftCount                *prometheus.Desc
+	statsEpClockCasDriftThresholdExceeded     *prometheus.Desc
 	statsEpBgFetched                          *prometheus.Desc
 	statsEpCacheMissRate                      *prometheus.Desc
 	statsEpDcp2iBackoff                       *prometheus.Desc
@@ -151,6 +158,9 @@ type bucketsCollector struct {
 	statsEpTapUserQueueFill                   *prometheus.Desc
 	statsEpTapUserQueueItemondisk             *prometheus.Desc
 	statsEpTapUserTotalBacklogSize            *prometheus.Desc
+	statsEpReplicaAheadExceptions             *prometheus.Desc
+	statsEpReplicaHlcDrift                    *prometheus.Desc
+	statsEpReplicaHlcDriftCount               *prometheus.Desc
 	statsEpTmpOomErrors                       *prometheus.Desc
 	statsEpVbTotal                            *prometheus.Desc
 	statsEvictions                            *prometheus.Desc
@@ -288,6 +298,18 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			[]string{"bucket"},
 			nil,
 		),
+		statsAvgActiveTimestampDrift: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_avg_active_timestamp_drift"),
+			"avg_active_timestamp_drift",
+			[]string{"bucket"},
+			nil,
+		),
+		statsAvgReplicaTimestampDrift: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "avg_replica_timestamp_drift"),
+			"avg_replica_timestamp_drift",
+			[]string{"bucket"},
+			nil,
+		),
 		statsAvgDiskCommitTime: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_avg_disk_commit_time"),
 			"Average disk commit time in seconds as from disk_update histogram of timings",
@@ -408,19 +430,19 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			[]string{"bucket"},
 			nil,
 		),
-		statsCpuIdleMs: prometheus.NewDesc(
+		statsCPUIdleMs: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_cpu_idle_ms"),
 			"CPU idle milliseconds",
 			[]string{"bucket"},
 			nil,
 		),
-		statsCpuLocalMs: prometheus.NewDesc(
+		statsCPULocalMs: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_cpu_local_ms"),
 			"stats_cpu_local_ms",
 			[]string{"bucket"},
 			nil,
 		),
-		statsCpuUtilizationRate: prometheus.NewDesc(
+		statsCPUUtilizationRate: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_cpu_utilization_rate"),
 			"Percentage of CPU in use across all available cores on this server",
 			[]string{"bucket"},
@@ -495,6 +517,30 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		statsDiskWriteQueue: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_disk_write_queue"),
 			"Number of items waiting to be written to disk in this bucket",
+			[]string{"bucket"},
+			nil,
+		),
+		statsEpActiveAheadExceptions: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_active_ahead_exceptions"),
+			"stats_ep_active_ahead_exceptions",
+			[]string{"bucket"},
+			nil,
+		),
+		statsEpActiveHlcDrift: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_active_hlc_drift"),
+			"stats_ep_active_hlc_drift",
+			[]string{"bucket"},
+			nil,
+		),
+		statsEpActiveHlcDriftCount: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_active_hlc_drift_count"),
+			"stats_ep_active_hlc_drift_count",
+			[]string{"bucket"},
+			nil,
+		),
+		statsEpClockCasDriftThresholdExceeded: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_clock_cas_drift_threshold_exceeded"),
+			"stats_ep_clock_cas_drift_threshold_exceeded",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1050,6 +1096,24 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			[]string{"bucket"},
 			nil,
 		),
+		statsEpReplicaAheadExceptions: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_replica_ahead_exceptions"),
+			"ep_replica_ahead_exceptions",
+			[]string{"bucket"},
+			nil,
+		),
+		statsEpReplicaHlcDrift: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_replica_hlc_drift"),
+			"ep_replica_hlc_drift",
+			[]string{"bucket"},
+			nil,
+		),
+		statsEpReplicaHlcDriftCount: prometheus.NewDesc(
+			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_replica_hlc_drift_count"),
+			"ep_replica_hlc_drift_count",
+			[]string{"bucket"},
+			nil,
+		),
 		statsEpTmpOomErrors: prometheus.NewDesc(
 			prometheus.BuildFQName(globalNamespace, ns, "stats_ep_tmp_oom_errors"),
 			"Number of back-offs sent per second to client SDKs due to OOM situations from this bucket",
@@ -1462,6 +1526,8 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.basicstatsOpspersec
 	ch <- c.basicstatsQuotapercentused
 	ch <- c.statsAvgBgWaitTime
+	ch <- c.statsAvgActiveTimestampDrift
+	ch <- c.statsAvgReplicaTimestampDrift
 	ch <- c.statsAvgDiskCommitTime
 	ch <- c.statsAvgDiskUpdateTime
 	ch <- c.statsBgWaitCount
@@ -1482,9 +1548,9 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsCouchViewsOps
 	ch <- c.statsCouchDocsFragmentation
 	ch <- c.statsCouchDocsDiskSize
-	ch <- c.statsCpuIdleMs
-	ch <- c.statsCpuLocalMs
-	ch <- c.statsCpuUtilizationRate
+	ch <- c.statsCPUIdleMs
+	ch <- c.statsCPULocalMs
+	ch <- c.statsCPUUtilizationRate
 	ch <- c.statsCurrConnections
 	ch <- c.statsCurrItems
 	ch <- c.statsCurrItemsTot
@@ -1497,6 +1563,10 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsDiskUpdateCount
 	ch <- c.statsDiskUpdateTotal
 	ch <- c.statsDiskWriteQueue
+	ch <- c.statsEpActiveAheadExceptions
+	ch <- c.statsEpActiveHlcDrift
+	ch <- c.statsEpActiveHlcDriftCount
+	ch <- c.statsEpClockCasDriftThresholdExceeded
 	ch <- c.statsEpBgFetched
 	ch <- c.statsEpCacheMissRate
 	ch <- c.statsEpDcp2iBackoff
@@ -1557,38 +1627,45 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsEpOverhead
 	ch <- c.statsEpQueueSize
 	ch <- c.statsEpResidentItemsRate
-	ch <- c.statsEpTapRebalanceCount
-	ch <- c.statsEpTapRebalanceQlen
-	ch <- c.statsEpTapRebalanceQueueBackfillremaining
-	ch <- c.statsEpTapRebalanceQueueBackoff
-	ch <- c.statsEpTapRebalanceQueueDrain
-	ch <- c.statsEpTapRebalanceQueueFill
-	ch <- c.statsEpTapRebalanceQueueItemondisk
-	ch <- c.statsEpTapRebalanceTotalBacklogSize
-	ch <- c.statsEpTapReplicaCount
-	ch <- c.statsEpTapReplicaQlen
-	ch <- c.statsEpTapReplicaQueueBackfillremaining
-	ch <- c.statsEpTapReplicaQueueBackoff
-	ch <- c.statsEpTapReplicaQueueDrain
-	ch <- c.statsEpTapReplicaQueueFill
-	ch <- c.statsEpTapReplicaQueueItemondisk
-	ch <- c.statsEpTapReplicaTotalBacklogSize
-	ch <- c.statsEpTapTotalCount
-	ch <- c.statsEpTapTotalQlen
-	ch <- c.statsEpTapTotalQueueBackfillremaining
-	ch <- c.statsEpTapTotalQueueBackoff
-	ch <- c.statsEpTapTotalQueueDrain
-	ch <- c.statsEpTapTotalQueueFill
-	ch <- c.statsEpTapTotalQueueItemondisk
-	ch <- c.statsEpTapTotalTotalBacklogSize
-	ch <- c.statsEpTapUserCount
-	ch <- c.statsEpTapUserQlen
-	ch <- c.statsEpTapUserQueueBackfillremaining
-	ch <- c.statsEpTapUserQueueBackoff
-	ch <- c.statsEpTapUserQueueDrain
-	ch <- c.statsEpTapUserQueueFill
-	ch <- c.statsEpTapUserQueueItemondisk
-	ch <- c.statsEpTapUserTotalBacklogSize
+	if c.client.IsCouchbase4() {
+		ch <- c.statsEpTapRebalanceCount
+		ch <- c.statsEpTapRebalanceQlen
+		ch <- c.statsEpTapRebalanceQueueBackfillremaining
+		ch <- c.statsEpTapRebalanceQueueBackoff
+		ch <- c.statsEpTapRebalanceQueueDrain
+		ch <- c.statsEpTapRebalanceQueueFill
+		ch <- c.statsEpTapRebalanceQueueItemondisk
+		ch <- c.statsEpTapRebalanceTotalBacklogSize
+		ch <- c.statsEpTapReplicaCount
+		ch <- c.statsEpTapReplicaQlen
+		ch <- c.statsEpTapReplicaQueueBackfillremaining
+		ch <- c.statsEpTapReplicaQueueBackoff
+		ch <- c.statsEpTapReplicaQueueDrain
+		ch <- c.statsEpTapReplicaQueueFill
+		ch <- c.statsEpTapReplicaQueueItemondisk
+		ch <- c.statsEpTapReplicaTotalBacklogSize
+		ch <- c.statsEpTapTotalCount
+		ch <- c.statsEpTapTotalQlen
+		ch <- c.statsEpTapTotalQueueBackfillremaining
+		ch <- c.statsEpTapTotalQueueBackoff
+		ch <- c.statsEpTapTotalQueueDrain
+		ch <- c.statsEpTapTotalQueueFill
+		ch <- c.statsEpTapTotalQueueItemondisk
+		ch <- c.statsEpTapTotalTotalBacklogSize
+		ch <- c.statsEpTapUserCount
+		ch <- c.statsEpTapUserQlen
+		ch <- c.statsEpTapUserQueueBackfillremaining
+		ch <- c.statsEpTapUserQueueBackoff
+		ch <- c.statsEpTapUserQueueDrain
+		ch <- c.statsEpTapUserQueueFill
+		ch <- c.statsEpTapUserQueueItemondisk
+		ch <- c.statsEpTapUserTotalBacklogSize
+	}
+	if c.client.IsCouchbase5() {
+		ch <- c.statsEpReplicaAheadExceptions
+		ch <- c.statsEpReplicaHlcDrift
+		ch <- c.statsEpReplicaHlcDriftCount
+	}
 	ch <- c.statsEpTmpOomErrors
 	ch <- c.statsEpVbTotal
 	ch <- c.statsEvictions
@@ -1692,6 +1769,12 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BasicStats.QuotaPercentUsed, bucket.Name)
 
 		ch <- prometheus.MustNewConstMetric(c.statsAvgBgWaitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgBgWaitTime), bucket.Name)
+
+		if c.client.IsCouchbase5() {
+			ch <- prometheus.MustNewConstMetric(c.statsAvgActiveTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgActiveTimestampDrift), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsAvgReplicaTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgReplicaTimestampDrift), bucket.Name)
+		}
+
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskCommitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskCommitTime), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskUpdateTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskUpdateTime), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsBgWaitCount, prometheus.GaugeValue, last(stats.Op.Samples.BgWaitCount), bucket.Name)
@@ -1712,9 +1795,9 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsCouchDocsFragmentation, prometheus.GaugeValue, last(stats.Op.Samples.CouchDocsFragmentation), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCouchDocsDataSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchDocsDataSize), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCouchDocsDiskSize, prometheus.GaugeValue, last(stats.Op.Samples.CouchDocsDiskSize), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsCpuIdleMs, prometheus.GaugeValue, last(stats.Op.Samples.CPUIdleMs), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsCpuLocalMs, prometheus.GaugeValue, last(stats.Op.Samples.CPULocalMs), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsCpuUtilizationRate, prometheus.GaugeValue, last(stats.Op.Samples.CPUUtilizationRate), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCPUIdleMs, prometheus.GaugeValue, last(stats.Op.Samples.CPUIdleMs), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCPULocalMs, prometheus.GaugeValue, last(stats.Op.Samples.CPULocalMs), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsCPUUtilizationRate, prometheus.GaugeValue, last(stats.Op.Samples.CPUUtilizationRate), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCurrConnections, prometheus.GaugeValue, last(stats.Op.Samples.CurrConnections), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCurrItems, prometheus.GaugeValue, last(stats.Op.Samples.CurrItems), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCurrItemsTot, prometheus.GaugeValue, last(stats.Op.Samples.CurrItemsTot), bucket.Name)
@@ -1727,6 +1810,14 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsDiskUpdateCount, prometheus.GaugeValue, last(stats.Op.Samples.DiskUpdateCount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskUpdateTotal, prometheus.GaugeValue, last(stats.Op.Samples.DiskUpdateTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskWriteQueue, prometheus.GaugeValue, last(stats.Op.Samples.DiskWriteQueue), bucket.Name)
+
+		if c.client.IsCouchbase5() {
+			ch <- prometheus.MustNewConstMetric(c.statsEpActiveAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveAheadExceptions), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDrift), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDriftCount), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpClockCasDriftThresholdExceeded, prometheus.GaugeValue, last(stats.Op.Samples.EpClockCasDriftThresholdExceeded), bucket.Name)
+		}
+
 		ch <- prometheus.MustNewConstMetric(c.statsEpBgFetched, prometheus.GaugeValue, last(stats.Op.Samples.EpBgFetched), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpCacheMissRate, prometheus.GaugeValue, last(stats.Op.Samples.EpCacheMissRate), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpDcp2iBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpDcp2IBackoff), bucket.Name)
@@ -1787,38 +1878,46 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsEpOverhead, prometheus.GaugeValue, last(stats.Op.Samples.EpOverhead), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpQueueSize, prometheus.GaugeValue, last(stats.Op.Samples.EpQueueSize), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpResidentItemsRate, prometheus.GaugeValue, last(stats.Op.Samples.EpResidentItemsRate), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQlen), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueBackfillremaining), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueBackoff), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueDrain), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueFill), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueItemondisk), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceTotalBacklogSize), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQlen), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueBackfillremaining), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueBackoff), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueDrain), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueFill), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueItemondisk), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaTotalBacklogSize), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQlen), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueBackfillremaining), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueBackoff), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueDrain), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueFill), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueItemondisk), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalTotalBacklogSize), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQlen), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueBackfillremaining), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueBackoff), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueDrain), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueFill), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueItemondisk), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpTapUserTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserTotalBacklogSize), bucket.Name)
+
+		if c.client.IsCouchbase4() {
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceCount), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQlen), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueBackfillremaining), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueBackoff), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueDrain), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueFill), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceQueueItemondisk), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapRebalanceTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapRebalanceTotalBacklogSize), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaCount), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQlen), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueBackfillremaining), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueBackoff), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueDrain), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueFill), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaQueueItemondisk), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapReplicaTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapReplicaTotalBacklogSize), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalCount), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQlen), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueBackfillremaining), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueBackoff), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueDrain), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueFill), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalQueueItemondisk), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapTotalTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapTotalTotalBacklogSize), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserCount, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserCount), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQlen, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQlen), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueBackfillremaining, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueBackfillremaining), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueBackoff), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueDrain, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueDrain), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueFill, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueFill), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserQueueItemondisk, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserQueueItemondisk), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpTapUserTotalBacklogSize, prometheus.GaugeValue, last(stats.Op.Samples.EpTapUserTotalBacklogSize), bucket.Name)
+		}
+		if c.client.IsCouchbase5() {
+			ch <- prometheus.MustNewConstMetric(c.statsEpReplicaAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaAheadExceptions), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDrift), bucket.Name)
+			ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDriftCount), bucket.Name)
+		}
 		ch <- prometheus.MustNewConstMetric(c.statsEpTmpOomErrors, prometheus.GaugeValue, last(stats.Op.Samples.EpTmpOomErrors), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpVbTotal, prometheus.GaugeValue, last(stats.Op.Samples.EpVbTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEvictions, prometheus.GaugeValue, last(stats.Op.Samples.Evictions), bucket.Name)

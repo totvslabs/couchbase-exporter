@@ -38,6 +38,10 @@ func New(url, user, password string) (Client, error) {
 	return client, nil
 }
 
+func (c Client) IsCouchbase4() bool {
+	return strings.HasPrefix(c.version, "4.")
+}
+
 func (c Client) IsCouchbase5() bool {
 	return strings.HasPrefix(c.version, "5.")
 }
