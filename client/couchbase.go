@@ -32,8 +32,8 @@ func New(url, user, password string) (Client, error) {
 	if err != nil {
 		return client, errors.Wrap(err, "failed to get node details")
 	}
-	if !strings.HasPrefix(nodes.Version, "5.") {
-		log.Warnf("couchbase %s is not fully supported", nodes.Version)
+	if !strings.HasPrefix(nodes.Nodes[0].Version, "5.") {
+		log.Warnf("couchbase %s is not fully supported", nodes.Nodes[0].Version)
 	}
 	return client, nil
 }

@@ -8,12 +8,14 @@ while true; do
 
 	sleep 60
 
-	docker exec test_cb1_1 couchbase-cli rebalance \
+	docker exec test_cb1_1 couchbase-cli server-add \
 		-c localhost -u adm -p secret \
 		--server-add=172.21.0.12 \
 		--server-add-username=adm \
 		--server-add-password=secret \
 		--services=data,index,query,fts
+	docker exec test_cb1_1 couchbase-cli rebalance \
+		-c localhost -u adm -p secret
 
 	sleep 60
 done

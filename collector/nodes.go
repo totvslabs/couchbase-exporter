@@ -62,9 +62,9 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
-	// for _, node := range nodes {
-	log.Info(nodes.Hostname)
-	// }
+	for _, node := range nodes.Nodes {
+		log.Info(node.Hostname)
+	}
 
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 }
