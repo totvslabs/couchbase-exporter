@@ -10,5 +10,8 @@ func fromBool(i bool) float64 {
 }
 
 func last(ss []float64) float64 {
+	if len(ss) == 0 {
+		return 0.0
+	}
 	return ss[len(ss)-1]
 }
