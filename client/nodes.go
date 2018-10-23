@@ -42,31 +42,55 @@ type Nodes struct {
 			MemTotal           int64   `json:"mem_total"`
 			MemFree            int64   `json:"mem_free"`
 		} `json:"systemStats"`
-		InterestingStats struct {
-		} `json:"interestingStats"`
-		Uptime               string `json:"uptime"`
-		MemoryTotal          int64  `json:"memoryTotal"`
-		MemoryFree           int64  `json:"memoryFree"`
-		McdMemoryReserved    int    `json:"mcdMemoryReserved"`
-		McdMemoryAllocated   int    `json:"mcdMemoryAllocated"`
-		CouchAPIBase         string `json:"couchApiBase"`
-		OtpCookie            string `json:"otpCookie"`
-		ClusterMembership    string `json:"clusterMembership"`
-		RecoveryType         string `json:"recoveryType"`
-		Status               string `json:"status"`
-		OtpNode              string `json:"otpNode"`
-		ThisNode             bool   `json:"thisNode,omitempty"`
-		Hostname             string `json:"hostname"`
-		ClusterCompatibility int    `json:"clusterCompatibility"`
-		Version              string `json:"version"`
-		Os                   string `json:"os"`
+		InterestingStats     InterestingStats `json:"interestingStats"`
+		Uptime               string           `json:"uptime"`
+		MemoryTotal          int64            `json:"memoryTotal"`
+		MemoryFree           int64            `json:"memoryFree"`
+		McdMemoryReserved    int              `json:"mcdMemoryReserved"`
+		McdMemoryAllocated   int              `json:"mcdMemoryAllocated"`
+		CouchAPIBase         string           `json:"couchApiBase"`
+		OtpCookie            string           `json:"otpCookie"`
+		ClusterMembership    string           `json:"clusterMembership"`
+		RecoveryType         string           `json:"recoveryType"`
+		Status               string           `json:"status"`
+		OtpNode              string           `json:"otpNode"`
+		ThisNode             bool             `json:"thisNode,omitempty"`
+		Hostname             string           `json:"hostname"`
+		ClusterCompatibility int              `json:"clusterCompatibility"`
+		Version              string           `json:"version"`
+		Os                   string           `json:"os"`
 	} `json:"nodes"`
-	RebalanceStatus string `json:"rebalanceStatus"`
-	MaxBucketCount  int    `json:"maxBucketCount"`
-	Counters        struct {
-		RebalanceSuccess int `json:"rebalance_success"`
-		RebalanceStart   int `json:"rebalance_start"`
-	} `json:"counters"`
-	ClusterName string `json:"clusterName"`
-	Balanced    bool   `json:"balanced"`
+	RebalanceStatus string   `json:"rebalanceStatus"`
+	MaxBucketCount  int      `json:"maxBucketCount"`
+	Counters        Counters `json:"counters"`
+	ClusterName     string   `json:"clusterName"`
+	Balanced        bool     `json:"balanced"`
+}
+
+type Counters struct {
+	RebalanceStart          int64 `json:"rebalance_start"`
+	RebalanceSuccess        int64 `json:"rebalance_success"`
+	RebalanceFail           int64 `json:"rebalance_fail"`
+	FailoverNode            int64 `json:"failover_node"`
+	GracefulFailoverStart   int64 `json:"graceful_failover_start"`
+	GracefulFailoverSuccess int64 `json:"graceful_failover_success"`
+	GracefulFailoverFail    int64 `json:"graceful_failover_fail"`
+}
+
+type InterestingStats struct {
+	CmdGet                   float64 `json:"cmd_get"`
+	CouchDocsActualDiskSize  float64 `json:"couch_docs_actual_disk_size"`
+	CouchDocsDataSize        float64 `json:"couch_docs_data_size"`
+	CouchSpatialDataSize     float64 `json:"couch_spatial_data_size"`
+	CouchSpatialDiskSize     float64 `json:"couch_spatial_disk_size"`
+	CouchViewsActualDiskSize float64 `json:"couch_views_actual_disk_size"`
+	CouchViewsDataSize       float64 `json:"couch_views_data_size"`
+	CurrItems                float64 `json:"curr_items"`
+	CurrItemsTot             float64 `json:"curr_items_tot"`
+	EpBgFetched              float64 `json:"ep_bg_fetched"`
+	GetHits                  float64 `json:"get_hits"`
+	MemUsed                  float64 `json:"mem_used"`
+	Ops                      float64 `json:"ops"`
+	VbActiveNumNonResident   float64 `json:"vb_active_num_non_resident"`
+	VbReplicaCurrItems       float64 `json:"vb_replica_curr_items"`
 }

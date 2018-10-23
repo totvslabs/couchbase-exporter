@@ -223,48 +223,7 @@ type BucketStats struct {
 
 // Bucket (/pools/default/buckets)
 type Bucket struct {
-	Name  string `json:"name"`
-	Nodes []struct {
-		CouchAPIBase string `json:"couchApiBase"`
-		SystemStats  struct {
-			CPUUtilizationRate float64 `json:"cpu_utilization_rate"`
-			SwapTotal          float64 `json:"swap_total"`
-			SwapUsed           float64 `json:"swap_used"`
-			MemTotal           float64 `json:"mem_total"`
-			MemFree            float64 `json:"mem_free"`
-		} `json:"systemStats"`
-		InterestingStats struct {
-			CmdGet                   float64 `json:"cmd_get"`
-			CouchDocsActualDiskSize  float64 `json:"couch_docs_actual_disk_size"`
-			CouchDocsDataSize        float64 `json:"couch_docs_data_size"`
-			CouchSpatialDataSize     float64 `json:"couch_spatial_data_size"`
-			CouchSpatialDiskSize     float64 `json:"couch_spatial_disk_size"`
-			CouchViewsActualDiskSize float64 `json:"couch_views_actual_disk_size"`
-			CouchViewsDataSize       float64 `json:"couch_views_data_size"`
-			CurrItems                float64 `json:"curr_items"`
-			CurrItemsTot             float64 `json:"curr_items_tot"`
-			EpBgFetched              float64 `json:"ep_bg_fetched"`
-			GetHits                  float64 `json:"get_hits"`
-			MemUsed                  float64 `json:"mem_used"`
-			Ops                      float64 `json:"ops"`
-			VbActiveNumNonResident   float64 `json:"vb_active_num_non_resident"`
-			VbReplicaCurrItems       float64 `json:"vb_replica_curr_items"`
-		} `json:"interestingStats"`
-		Uptime               string  `json:"uptime"`
-		MemoryTotal          float64 `json:"memoryTotal"`
-		MemoryFree           float64 `json:"memoryFree"`
-		McdMemoryReserved    float64 `json:"mcdMemoryReserved"`
-		McdMemoryAllocated   float64 `json:"mcdMemoryAllocated"`
-		Replication          float64 `json:"replication"`
-		ClusterMembership    string  `json:"clusterMembership"`
-		RecoveryType         string  `json:"recoveryType"`
-		Status               string  `json:"status"`
-		OtpNode              string  `json:"otpNode"`
-		Hostname             string  `json:"hostname"`
-		ClusterCompatibility float64 `json:"clusterCompatibility"`
-		Version              string  `json:"version"`
-		Os                   string  `json:"os"`
-	} `json:"nodes"`
+	Name          string  `json:"name"`
 	UUID          string  `json:"uuid"`
 	ReplicaNumber float64 `json:"replicaNumber"`
 	ThreadsNumber float64 `json:"threadsNumber"`
