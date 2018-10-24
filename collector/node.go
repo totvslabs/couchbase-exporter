@@ -39,7 +39,7 @@ type nodesCollector struct {
 
 // NewNodesCollector nodes collector
 func NewNodesCollector(client client.Client) prometheus.Collector {
-	const subsystem = "nodes"
+	const subsystem = "node"
 	return &nodesCollector{
 		client: client,
 		up: prometheus.NewDesc(

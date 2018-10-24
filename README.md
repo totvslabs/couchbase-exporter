@@ -5,6 +5,18 @@ A prometheus couchbase exporter!
 All others I found seem to be abandoned and/or very incomplete. This is an attempt to
 have all metrics exported, including task-related metrics!
 
+## Goal
+
+Innitially, have the same metrics as [our old exporter](https://github.com/brunopsoares/prometheus_couchbase_exporter),
+to facilitate the migration.
+
+Once that's done, we can better document all metrics, eventually improve their
+naming (like adding `_total`, `_seconds`, `_byte` prefixes), and finally,
+provide example alerting rules and grafana dashboards, so it's easier to
+proper monitor a couchbase cluster.
+
+It's worth saying that we will only support Couchbase 5 for now.
+
 ## Usage
 
 ```console
