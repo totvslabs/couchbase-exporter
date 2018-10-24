@@ -8,6 +8,14 @@ builds:
   goos:
   - linux
   - darwin
+dockers:
+- image_templates:
+  - "caarlos0/couchbase-exporter:latest"
+  - "caarlos0/couchbase-exporter:{{ .Tag }}"
+  build_flag_templates:
+  - "--label=org.label-schema.schema-version=1.0"
+  - "--label=org.label-schema.version={{ .Version }}"
+  - "--label=org.label-schema.name={{ .ProjectName }}"
 changelog:
   sort: asc
   filters:
