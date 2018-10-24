@@ -18,7 +18,7 @@ var (
 	metricsPath       = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
 	couchbaseURL      = kingpin.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
 	couchbaseUsername = kingpin.Flag("couchbase.username", "Couchbase username").String()
-	couchbasePassword = kingpin.Flag("couchbase.password", "Couchbase password").String()
+	couchbasePassword = kingpin.Flag("couchbase.password", "Couchbase password").OverrideDefaultFromEnvar("COUCHBASE_PASSWORD").String()
 
 	tasks   = kingpin.Flag("collectors.tasks", "Wether to collect tasks metrics").Default("true").Bool()
 	buckets = kingpin.Flag("collectors.buckets", "Wether to collect buckets metrics").Default("true").Bool()
