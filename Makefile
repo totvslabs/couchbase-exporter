@@ -50,4 +50,8 @@ todo:
 		-nRo -E ' TODO:.*|SkipNow' .
 .PHONY: todo
 
+grafana:
+	jsonnet -J grafana grafana/dashboard.jsonnet -o grafana/dashboard.json
+.PHONY: grafana
+
 .DEFAULT_GOAL := build
