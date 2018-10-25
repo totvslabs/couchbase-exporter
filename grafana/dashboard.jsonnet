@@ -7,7 +7,7 @@ local prometheus = grafana.prometheus;
 
 dashboard.new(
 	'Couchbase5',
-	refresh='30s',
+	refresh='10s',
 	time_from='now-1h',
 	tags=['couchbase'],
 	editable=true,
@@ -238,6 +238,7 @@ dashboard.new(
 			legend_sort='current',
 			legend_sortDesc=true,
 			format='decbytes',
+			min=0,
 		)
 		.addTarget(
 			prometheus.target(
@@ -300,6 +301,76 @@ dashboard.new(
 .addRow(
 	row.new(
 		title='Queries'
+	)
+	.addPanel(
+		graphPanel.new(
+			'Gets / Sets',
+			span=12,
+			legend_alignAsTable=true,
+			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
+		)
+		.addSeriesOverride(
+			{
+				"alias": "/Get.*/",
+          		"transform": "negative-Y"
+            }
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='Sets on {{ bucket }}',
+			)
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='Gets on {{ bucket }}',
+			)
+		)
+	)
+	.addPanel(
+		graphPanel.new(
+			'Evictions',
+			span=6,
+			legend_alignAsTable=true,
+			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
+			min=0,
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_evictions{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='{{ bucket }}',
+			)
+		)
+	)
+	.addPanel(
+		graphPanel.new(
+			'Miss Rate',
+			span=6,
+			legend_alignAsTable=true,
+			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
+			format='percent',
+			min=0,
+			max=100,
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_ep_cache_miss_rate{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='{{ bucket }}',
+			)
+		)
 	)
 )
 .addRow(
