@@ -84,8 +84,15 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 		log.With("error", err).Error("failed to scrape tasks")
 		return
 	}
+	buckets, err := c.client.Buckets()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 0)
+		log.With("error", err).Error("failed to scrape tasks")
+		return
+	}
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
+	var compactsReported = map[string]bool{}
 	for _, task := range tasks {
 		switch task.Type {
 		case "rebalance":
@@ -95,9 +102,19 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		case "bucket_compaction":
 			ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, task.Progress, task.Bucket)
+			compactsReported[task.Bucket] = true
 		default:
 			log.With("type", task.Type).Error("not implemented")
 		}
+	}
+	// always report the compacting task, even if it is not happening
+	// this is to not break dashboards and make it easier to test alert rule
+	// and etc.
+	for _, bucket := range buckets {
+		if ok, _ := compactsReported[bucket.Name]; !ok {
+			ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, 0, bucket.Name)
+		}
+		compactsReported[bucket.Name] = true
 	}
 
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
