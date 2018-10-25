@@ -64,7 +64,7 @@ dashboard.new(
 	.addPanel(
 		singlestat.new(
 			'Bucket RAM Size',
-			format='bytes',
+			format='decbytes',
 			datasource='Prometheus',
 			span=2,
 			valueName='current',
@@ -136,6 +136,10 @@ dashboard.new(
 			span=12,
 			legend_alignAsTable=true,
 			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
 			min=0,
 		)
 		.addTarget(
@@ -151,6 +155,10 @@ dashboard.new(
 			span=12,
 			legend_alignAsTable=true,
 			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
 			format='percent',
 			min=0,
 			max=100,
@@ -173,6 +181,10 @@ dashboard.new(
 			span=6,
 			legend_alignAsTable=true,
 			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
 			format='percent',
 			min=0,
 			max=100,
@@ -190,6 +202,10 @@ dashboard.new(
 			span=6,
 			legend_alignAsTable=true,
 			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
 			format='percent',
 			min=0,
 			max=100,
@@ -213,10 +229,64 @@ dashboard.new(
 	)
 	.addPanel(
 		graphPanel.new(
+			'Memory Used',
+			span=12,
+			legend_alignAsTable=true,
+			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
+			format='decbytes',
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_basicstats_memused{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='{{ bucket }}.Usage',
+			)
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_ep_mem_high_wat{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='{{ bucket }}.HighWatermark',
+			)
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_ep_mem_low_wat{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='{{ bucket }}.LowWatermark',
+			)
+		)
+	)
+	.addPanel(
+		graphPanel.new(
+			'Items Count',
+			span=6,
+			legend_alignAsTable=true,
+			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
+			min=0,
+		)
+		.addTarget(
+			prometheus.target(
+				'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance=~"$instance"}',
+				legendFormat='{{ bucket }}',
+			)
+		)
+	)
+	.addPanel(
+		graphPanel.new(
 			'Hard Out of Memory Errors',
 			span=6,
 			legend_alignAsTable=true,
 			legend_rightSide=true,
+			legend_values=true,
+			legend_current=true,
+			legend_sort='current',
+			legend_sortDesc=true,
 			min=0,
 		)
 		.addTarget(
