@@ -35,13 +35,6 @@ type Nodes struct {
 	Name             string        `json:"name"`
 	Alerts           []interface{} `json:"alerts"`
 	Nodes            []struct {
-		SystemStats struct {
-			CPUUtilizationRate float64 `json:"cpu_utilization_rate"`
-			SwapTotal          int     `json:"swap_total"`
-			SwapUsed           int     `json:"swap_used"`
-			MemTotal           int64   `json:"mem_total"`
-			MemFree            int64   `json:"mem_free"`
-		} `json:"systemStats"`
 		InterestingStats     InterestingStats `json:"interestingStats"`
 		Uptime               string           `json:"uptime"`
 		MemoryTotal          int64            `json:"memoryTotal"`
