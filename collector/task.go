@@ -108,7 +108,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	// this is to not break dashboards and make it easier to test alert rule
 	// and etc.
 	for _, bucket := range buckets {
-		if ok, _ := compactsReported[bucket.Name]; !ok {
+		if ok := compactsReported[bucket.Name]; !ok {
 			ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, 0, bucket.Name)
 		}
 		compactsReported[bucket.Name] = true

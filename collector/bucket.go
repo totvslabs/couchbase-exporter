@@ -1496,11 +1496,11 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 
 		// TODO: collect bucket.Nodes metrics as well
 
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, float64(bucket.BasicStats.DataUsed), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, float64(bucket.BasicStats.DiskFetches), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskused, prometheus.GaugeValue, float64(bucket.BasicStats.DiskUsed), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsItemcount, prometheus.GaugeValue, float64(bucket.BasicStats.ItemCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsMemused, prometheus.GaugeValue, float64(bucket.BasicStats.MemUsed), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, bucket.BasicStats.DataUsed, bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, bucket.BasicStats.DiskFetches, bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskused, prometheus.GaugeValue, bucket.BasicStats.DiskUsed, bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsItemcount, prometheus.GaugeValue, bucket.BasicStats.ItemCount, bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsMemused, prometheus.GaugeValue, bucket.BasicStats.MemUsed, bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsOpspersec, prometheus.GaugeValue, bucket.BasicStats.OpsPerSec, bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BasicStats.QuotaPercentUsed, bucket.Name)
 

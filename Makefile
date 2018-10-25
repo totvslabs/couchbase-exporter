@@ -30,8 +30,10 @@ fmt:
 .PHONY: fmt
 
 lint:
-	# TODO: fix tests and lll issues
-	./bin/golangci-lint run --tests=false --enable-all --disable=lll ./...
+	# TODO: fix lll issues
+	./bin/golangci-lint run --enable-all --disable=lll ./...
+	promtool check rules prometheus/couchbase.rules.yml
+	jsonnet fmt --test ./grafana/*.jsonnet
 .PHONY: lint
 
 ci: build test lint
