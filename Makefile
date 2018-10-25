@@ -26,6 +26,7 @@ cover: test
 
 fmt:
 	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do gofmt -w -s "$$file"; goimports -w "$$file"; done
+	jsonnet fmt -i ./grafana/*.jsonnet
 .PHONY: fmt
 
 lint:
