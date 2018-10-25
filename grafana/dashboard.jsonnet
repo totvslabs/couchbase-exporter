@@ -47,6 +47,52 @@ dashboard.new(
   )
   .addPanel(
     singlestat.new(
+      'Rebalance Progress',
+      format='percent',
+      datasource='Prometheus',
+      span=2,
+      valueName='current',
+      gaugeShow=true,
+      gaugeThresholdMarkers=false,
+      valueMaps=[
+        {
+          value: 'null',
+          op: '=',
+          text: '0',
+        },
+      ]
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_task_rebalance_progress{instance=~"$instance"}',
+      )
+    )
+  )
+  .addPanel(
+    singlestat.new(
+      'Compacting Progress',
+      format='percent',
+      datasource='Prometheus',
+      span=2,
+      valueName='current',
+      gaugeShow=true,
+      gaugeThresholdMarkers=false,
+      valueMaps=[
+        {
+          value: 'null',
+          op: '=',
+          text: '0',
+        },
+      ]
+    )
+    .addTarget(
+      prometheus.target(
+        'avg(couchbase_task_compacting_progress{instance=~"$instance"})',
+      )
+    )
+  )
+  .addPanel(
+    singlestat.new(
       'Bucket RAM Usage',
       datasource='Prometheus',
       span=2,
@@ -96,22 +142,6 @@ dashboard.new(
   )
   .addPanel(
     singlestat.new(
-      'Rebalance Progress',
-      format='precent',
-      datasource='Prometheus',
-      span=2,
-      valueName='current',
-      sparklineFull=true,
-      sparklineShow=true,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_task_rebalance_progress{instance=~"$instance"}',
-      )
-    )
-  )
-  .addPanel(
-    singlestat.new(
       'Bucket QPS',
       format='none',
       datasource='Prometheus',
@@ -155,6 +185,82 @@ dashboard.new(
     graphPanel.new(
       'Cache Miss Rate',
       span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='percent',
+      min=0,
+      max=100,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_cache_miss_rate{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+)
+.addRow(
+  row.new(
+    title='Queries',
+    collapse=false,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Gets / Sets',
+      span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addSeriesOverride(
+      {
+        alias: '/set/',
+        transform: 'negative-Y',
+      }
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='Sets on {{ bucket }}',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='Gets on {{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Evictions',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_evictions{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Miss Rate',
+      span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
       legend_values=true,
@@ -244,82 +350,6 @@ dashboard.new(
     .addTarget(
       prometheus.target(
         'rate(couchbase_bucket_stats_ep_oom_errors{instance="$instance", bucket=~"$bucket"}[5m])',
-        legendFormat='{{ bucket }}',
-      )
-    )
-  )
-)
-.addRow(
-  row.new(
-    title='Queries',
-    collapse=false,
-  )
-  .addPanel(
-    graphPanel.new(
-      'Gets / Sets',
-      span=12,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-    )
-    .addSeriesOverride(
-      {
-        alias: '/set/',
-        transform: 'negative-Y',
-      }
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance=~"$instance"}',
-        legendFormat='Sets on {{ bucket }}',
-      )
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance=~"$instance"}',
-        legendFormat='Gets on {{ bucket }}',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
-      'Evictions',
-      span=6,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      min=0,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_evictions{bucket=~"$bucket",instance=~"$instance"}',
-        legendFormat='{{ bucket }}',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
-      'Miss Rate',
-      span=6,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      format='percent',
-      min=0,
-      max=100,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_cache_miss_rate{bucket=~"$bucket",instance=~"$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
