@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/caarlos0/couchbase-exporter/client"
-	"github.com/caarlos0/couchbase-exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
+	"github.com/totvslabs/couchbase-exporter/client"
+	"github.com/totvslabs/couchbase-exporter/collector"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 

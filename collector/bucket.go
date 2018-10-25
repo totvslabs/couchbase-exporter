@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/caarlos0/couchbase-exporter/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"github.com/totvslabs/couchbase-exporter/client"
 )
 
 type bucketsCollector struct {
