@@ -29,8 +29,6 @@ type bucketsCollector struct {
 	statsAvgReplicaTimestampDrift         *prometheus.Desc
 	statsAvgDiskCommitTime                *prometheus.Desc
 	statsAvgDiskUpdateTime                *prometheus.Desc
-	statsBgWaitCount                      *prometheus.Desc
-	statsBgWaitTotal                      *prometheus.Desc
 	statsBytesRead                        *prometheus.Desc
 	statsBytesWritten                     *prometheus.Desc
 	statsCasBadval                        *prometheus.Desc
@@ -253,8 +251,8 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsAvgBgWaitTime: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_avg_bg_wait_time"),
-			"Average background fetch time in microseconds",
+			prometheus.BuildFQName(namespace, subsystem, "stats_avg_bg_wait_seconds"),
+			"Average background fetch time in seconds",
 			[]string{"bucket"},
 			nil,
 		),
@@ -279,18 +277,6 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		statsAvgDiskUpdateTime: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "stats_avg_disk_update_time"),
 			"Average disk update time in microseconds as from disk_update histogram of timings",
-			[]string{"bucket"},
-			nil,
-		),
-		statsBgWaitCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_bg_waits"),
-			"stats_bg_wait_count",
-			[]string{"bucket"},
-			nil,
-		),
-		statsBgWaitTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_bg_wait_seconds"),
-			"Average background fetch time in seconds",
 			[]string{"bucket"},
 			nil,
 		),
@@ -1274,8 +1260,6 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsAvgReplicaTimestampDrift
 	ch <- c.statsAvgDiskCommitTime
 	ch <- c.statsAvgDiskUpdateTime
-	ch <- c.statsBgWaitCount
-	ch <- c.statsBgWaitTotal
 	ch <- c.statsBytesRead
 	ch <- c.statsBytesWritten
 	ch <- c.statsCasBadval
@@ -1472,13 +1456,11 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.basicstatsOpspersec, prometheus.GaugeValue, bucket.BasicStats.OpsPerSec, bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BasicStats.QuotaPercentUsed, bucket.Name)
 
-		ch <- prometheus.MustNewConstMetric(c.statsAvgBgWaitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgBgWaitTime), bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.statsAvgBgWaitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgBgWaitTime)/1000000, bucket.Name) // this comes as microseconds from CB
 		ch <- prometheus.MustNewConstMetric(c.statsAvgActiveTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgActiveTimestampDrift), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgReplicaTimestampDrift, prometheus.GaugeValue, last(stats.Op.Samples.AvgReplicaTimestampDrift), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskCommitTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskCommitTime), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsAvgDiskUpdateTime, prometheus.GaugeValue, last(stats.Op.Samples.AvgDiskUpdateTime), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsBgWaitCount, prometheus.GaugeValue, last(stats.Op.Samples.BgWaitCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsBgWaitTotal, prometheus.GaugeValue, last(stats.Op.Samples.BgWaitTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsBytesRead, prometheus.GaugeValue, last(stats.Op.Samples.BytesRead), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsBytesWritten, prometheus.GaugeValue, last(stats.Op.Samples.BytesWritten), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsCasBadval, prometheus.GaugeValue, last(stats.Op.Samples.CasBadval), bucket.Name)
