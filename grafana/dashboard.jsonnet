@@ -47,6 +47,44 @@ dashboard.new(
   )
   .addPanel(
     singlestat.new(
+      'Balanced',
+      datasource='Prometheus',
+      span=2,
+      valueName='current',
+      colorBackground=true,
+      valueFontSize='200%',
+      thresholds='0,1',
+      colors=[
+        '#d44a3a',
+        '#299c46',
+        '#299c46',
+      ],
+      valueMaps=[
+        {
+          value: 'null',
+          op: '=',
+          text: 'N/A',
+        },
+        {
+          value: '1',
+          op: '=',
+          text: 'YES',
+        },
+        {
+          value: '0',
+          op: '=',
+          text: 'NO',
+        },
+      ]
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_cluster_balanced{instance=~"$instance"}',
+      )
+    )
+  )
+  .addPanel(
+    singlestat.new(
       'Rebalance Progress',
       format='percent',
       datasource='Prometheus',
@@ -57,6 +95,11 @@ dashboard.new(
       valueMaps=[
         {
           value: 'null',
+          op: '=',
+          text: 'N/A',
+        },
+        {
+          value: '0',
           op: '=',
           text: 'OK',
         },
@@ -80,6 +123,11 @@ dashboard.new(
       valueMaps=[
         {
           value: 'null',
+          op: '=',
+          text: 'N/A',
+        },
+        {
+          value: '0',
           op: '=',
           text: 'OK',
         },
@@ -105,22 +153,6 @@ dashboard.new(
     .addTarget(
       prometheus.target(
         'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused{bucket=~"$bucket",instance=~"$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size{bucket=~"$bucket",instance=~"$instance"}))',
-      )
-    )
-  )
-  .addPanel(
-    singlestat.new(
-      'Bucket RAM Size',
-      format='decbytes',
-      datasource='Prometheus',
-      span=2,
-      valueName='current',
-      sparklineFull=true,
-      sparklineShow=true,
-    )
-    .addTarget(
-      prometheus.target(
-        'avg(sum(couchbase_bucket_stats_ep_max_size{bucket=~"$bucket",instance=~"$instance"}))',
       )
     )
   )
