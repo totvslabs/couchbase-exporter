@@ -42,7 +42,8 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='General'
+    title='General',
+    collapse=false,
   )
   .addPanel(
     singlestat.new(
@@ -128,7 +129,8 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Details'
+    title='Details',
+    collapse=false,
   )
   .addPanel(
     graphPanel.new(
@@ -173,155 +175,8 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Compacting'
-  )
-  .addPanel(
-    graphPanel.new(
-      'Fragmentation',
-      span=6,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      format='percent',
-      min=0,
-      max=100,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_couch_docs_fragmentation{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='{{ bucket }}',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
-      'Compaction Progress',
-      span=6,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      format='percent',
-      min=0,
-      max=100,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_task_compacting_progress{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='{{ bucket }}',
-      )
-    )
-  )
-)
-.addRow(
-  row.new(
-    title='Rebalance'
-  )
-  .addPanel(
-    graphPanel.new(
-      'Rebalance Progress',
-      span=6,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      format='percent',
-      min=0,
-      max=100,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_task_rebalance_progress{instance=~"$instance"}',
-        legendFormat='',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
-      'DCP Replication',
-      span=6,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      min=0,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_producer_count{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='{{ bucket }}: DCP Senders',
-      )
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_count{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='{{ bucket }}: DCP Connections',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
-      'Items Sent vs Remaining',
-      span=12,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-    )
-    .addSeriesOverride(
-      {
-        alias: '/remaining/',
-        transform: 'negative-Y',
-      }
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_items_sent{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='Sent on {{ bucket }}',
-      )
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_items_remaining{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='Remaining on {{ bucket }}',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
-      'Speed',
-      span=12,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      format='bytes/sec',
-      min=0,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_total_bytes{instance=~"$instance", bucket=~"$bucket"}',
-        legendFormat='{{ bucket }}',
-      )
-    )
-  )
-)
-.addRow(
-  row.new(
-    title='Memory'
+    title='Memory',
+    collapse=true,
   )
   .addPanel(
     graphPanel.new(
@@ -396,7 +251,8 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Queries'
+    title='Queries',
+    collapse=false,
   )
   .addPanel(
     graphPanel.new(
@@ -411,7 +267,7 @@ dashboard.new(
     )
     .addSeriesOverride(
       {
-        alias: '/Get.*/',
+        alias: '/set/',
         transform: 'negative-Y',
       }
     )
@@ -471,6 +327,253 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='XDCR'
+    title='Compacting',
+    collapse=true,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Fragmentation',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='percent',
+      min=0,
+      max=100,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_couch_docs_fragmentation{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Compaction Progress',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='percent',
+      min=0,
+      max=100,
+      nullPointMode='null as zero',
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_task_compacting_progress{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+)
+.addRow(
+  row.new(
+    title='Rebalance',
+    collapse=true,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Rebalance Progress',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='percent',
+      min=0,
+      max=100,
+      nullPointMode='null as zero',
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_task_rebalance_progress{instance=~"$instance"}',
+        legendFormat='',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'DCP Replication',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_replica_producer_count{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}: DCP Senders',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_replica_count{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}: DCP Connections',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Items Sent / Remaining',
+      span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addSeriesOverride(
+      {
+        alias: '/remaining/',
+        transform: 'negative-Y',
+      }
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_replica_items_sent{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='Sent on {{ bucket }}',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_replica_items_remaining{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='Remaining on {{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Speed',
+      span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='Bps',
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_replica_total_bytes{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+)
+.addRow(
+  row.new(
+    title='XDCR',
+    collapse=true,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Items Sent / Remaining',
+      span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addSeriesOverride(
+      {
+        alias: '/remaining/',
+        transform: 'negative-Y',
+      }
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_xdcr_items_remaining{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}: Remaining',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_xdcr_items_sent{bucket=~"$bucket", instance=~"$instance"}',
+        legendFormat='{{ bucket }}: Sent'
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Speed',
+      span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='Bps',
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_xdcr_total_bytes{bucket=~"$bucket", instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Backlog Size',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_xdcr_total_backlog_size{bucket=~"$bucket", instance=~"$instance"}',
+        legendFormat='{{ bucket }}'
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'DCP',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_xdcr_count{bucket=~"$bucket", instance=~"$instance"}',
+        legendFormat='{{ bucket }}: connections'
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_dcp_xdcr_producer_count{bucket=~"$bucket", instance=~"$instance"}',
+        legendFormat='{{ bucket }}: producers'
+      )
+    )
   )
 )
