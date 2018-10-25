@@ -58,13 +58,10 @@ type bucketsCollector struct {
 	statsDeleteHits                       *prometheus.Desc
 	statsDeleteMisses                     *prometheus.Desc
 	statsDiskCommitCount                  *prometheus.Desc
-	statsDiskCommitTotal                  *prometheus.Desc
 	statsDiskUpdateCount                  *prometheus.Desc
-	statsDiskUpdateTotal                  *prometheus.Desc
 	statsDiskWriteQueue                   *prometheus.Desc
 	statsEpActiveAheadExceptions          *prometheus.Desc
 	statsEpActiveHlcDrift                 *prometheus.Desc
-	statsEpActiveHlcDriftCount            *prometheus.Desc
 	statsEpClockCasDriftThresholdExceeded *prometheus.Desc
 	statsEpBgFetched                      *prometheus.Desc
 	statsEpCacheMissRate                  *prometheus.Desc
@@ -128,7 +125,6 @@ type bucketsCollector struct {
 	statsEpResidentItemsRate              *prometheus.Desc
 	statsEpReplicaAheadExceptions         *prometheus.Desc
 	statsEpReplicaHlcDrift                *prometheus.Desc
-	statsEpReplicaHlcDriftCount           *prometheus.Desc
 	statsEpTmpOomErrors                   *prometheus.Desc
 	statsEpVbTotal                        *prometheus.Desc
 	statsEvictions                        *prometheus.Desc
@@ -227,7 +223,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		basicstatsDiskused: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "basicstats_diskused"),
+			prometheus.BuildFQName(namespace, subsystem, "basicstats_diskused_bytes"),
 			"basicstats_diskused",
 			[]string{"bucket"},
 			nil,
@@ -239,7 +235,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		basicstatsMemused: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "basicstats_memused"),
+			prometheus.BuildFQName(namespace, subsystem, "basicstats_memused_bytes"),
 			"basicstats_memused",
 			[]string{"bucket"},
 			nil,
@@ -251,7 +247,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		basicstatsQuotapercentused: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "basicstats_quotapercentused"),
+			prometheus.BuildFQName(namespace, subsystem, "basicstats_quota_user_percent"),
 			"basicstats_quotapercentused",
 			[]string{"bucket"},
 			nil,
@@ -287,25 +283,25 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsBgWaitCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_bg_wait_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_bg_waits"),
 			"stats_bg_wait_count",
 			[]string{"bucket"},
 			nil,
 		),
 		statsBgWaitTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_bg_wait_total"),
-			"stats_bg_wait_total",
+			prometheus.BuildFQName(namespace, subsystem, "stats_bg_wait_seconds"),
+			"Average background fetch time in seconds",
 			[]string{"bucket"},
 			nil,
 		),
 		statsBytesRead: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_bytes_read"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_read_bytes"),
 			"Bytes read",
 			[]string{"bucket"},
 			nil,
 		),
 		statsBytesWritten: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_bytes_written"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_written_bytes"),
 			"Bytes written",
 			[]string{"bucket"},
 			nil,
@@ -455,26 +451,14 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsDiskCommitCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_disk_commit_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_disk_commits"),
 			"Disk commits",
 			[]string{"bucket"},
 			nil,
 		),
-		statsDiskCommitTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_disk_commit_total"),
-			"stats_disk_commit_total",
-			[]string{"bucket"},
-			nil,
-		),
 		statsDiskUpdateCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_disk_update_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_disk_updates"),
 			"Disk updates",
-			[]string{"bucket"},
-			nil,
-		),
-		statsDiskUpdateTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_disk_update_total"),
-			"stats_disk_update_total",
 			[]string{"bucket"},
 			nil,
 		),
@@ -493,12 +477,6 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		statsEpActiveHlcDrift: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "stats_ep_active_hlc_drift"),
 			"stats_ep_active_hlc_drift",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpActiveHlcDriftCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_active_hlc_drift_count"),
-			"stats_ep_active_hlc_drift_count",
 			[]string{"bucket"},
 			nil,
 		),
@@ -527,7 +505,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcp2iCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_2i_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_2i_connections"),
 			"Number of indexes DCP connections",
 			[]string{"bucket"},
 			nil,
@@ -545,7 +523,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcp2iProducerCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_2i_producer_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_2i_producers"),
 			"Number of indexes producers",
 			[]string{"bucket"},
 			nil,
@@ -569,7 +547,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpOtherCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_other_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_others"),
 			"Number of other DCP connections in this bucket",
 			[]string{"bucket"},
 			nil,
@@ -587,7 +565,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpOtherProducerCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_other_producer_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_other_producers"),
 			"Number of other senders for this bucket",
 			[]string{"bucket"},
 			nil,
@@ -611,7 +589,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpReplicaCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_replica_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_replicas"),
 			"Number of internal replication DCP connections in this bucket",
 			[]string{"bucket"},
 			nil,
@@ -629,7 +607,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpReplicaProducerCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_replica_producer_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_replica_producers"),
 			"Number of replication senders for this bucket",
 			[]string{"bucket"},
 			nil,
@@ -647,13 +625,13 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpViewsBackoff: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_views_backoff"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_views_backoffs"),
 			"Number of backoffs for views DCP connections",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpDcpViewsCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_views_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_view_connections"),
 			"Number of views DCP connections",
 			[]string{"bucket"},
 			nil,
@@ -671,7 +649,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpViewsProducerCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_views_producer_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_views_producers"),
 			"Number of views producers",
 			[]string{"bucket"},
 			nil,
@@ -695,7 +673,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpXdcrCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_xdcr_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_xdcr_connections"),
 			"Number of internal XDCR DCP connections in this bucket",
 			[]string{"bucket"},
 			nil,
@@ -713,7 +691,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpDcpXdcrProducerCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_xdcr_producer_count"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_dcp_xdcr_producers"),
 			"Number of XDCR senders for this bucket",
 			[]string{"bucket"},
 			nil,
@@ -773,13 +751,13 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpMemHighWat: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_mem_high_wat"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_mem_high_wat_bytes"),
 			"High water mark for auto-evictions",
 			[]string{"bucket"},
 			nil,
 		),
 		statsEpMemLowWat: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_mem_low_wat"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_mem_low_wat_bytes"),
 			"Low water mark for auto-evictions",
 			[]string{"bucket"},
 			nil,
@@ -876,13 +854,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 		),
 		statsEpReplicaHlcDrift: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "stats_ep_replica_hlc_drift"),
-			"ep_replica_hlc_drift",
-			[]string{"bucket"},
-			nil,
-		),
-		statsEpReplicaHlcDriftCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_replica_hlc_drift_count"),
-			"ep_replica_hlc_drift_count",
+			"The sum of the total Absolute Drift, which is the accumulated drift observed by the vBucket. Drift is always accumulated as an absolute value.",
 			[]string{"bucket"},
 			nil,
 		),
@@ -893,7 +865,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpVbTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_vb_total"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_vbuckets"),
 			"Total number of vBuckets for this bucket",
 			[]string{"bucket"},
 			nil,
@@ -953,31 +925,31 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsMemActualUsed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_mem_actual_used"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_mem_actual_used_bytes"),
 			"stats_mem_actual_used",
 			[]string{"bucket"},
 			nil,
 		),
 		statsMemFree: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_mem_free"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_mem_free_bytes"),
 			"Amount of Memory free",
 			[]string{"bucket"},
 			nil,
 		),
 		statsMemTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_mem_total"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_mem_bytes"),
 			"Total amount of memory available",
 			[]string{"bucket"},
 			nil,
 		),
 		statsMemUsed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_mem_used"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_mem_used_bytes"),
 			"Amount of memory used",
 			[]string{"bucket"},
 			nil,
 		),
 		statsMemUsedSys: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_mem_used_sys"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_mem_used_sys_bytes"),
 			"stats_mem_used_sys",
 			[]string{"bucket"},
 			nil,
@@ -1001,13 +973,13 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsSwapTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_swap_total"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_swap_bytes"),
 			"Total amount of swap available",
 			[]string{"bucket"},
 			nil,
 		),
 		statsSwapUsed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_swap_used"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_swap_used_bytes"),
 			"Amount of swap space in use on this server",
 			[]string{"bucket"},
 			nil,
@@ -1019,259 +991,259 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsVbActiveEject: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_eject"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_eject"),
 			"Number of items per second being ejected to disk from active vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveItmMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_itm_memory"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_itm_memory"),
 			"Amount of active user data cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveMetaDataMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_meta_data_memory"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_meta_data_memory"),
 			"Amount of active item metadata consuming RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveNum: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_num"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_num"),
 			"Number of vBuckets in the active state for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveNumNonResident: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_num_non_resident"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_num_non_resident"),
 			"Number of non resident vBuckets in the active state for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveOpsCreate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_ops_create"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_ops_create"),
 			"New items per second being inserted into active vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveOpsUpdate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_ops_update"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_ops_update"),
 			"Number of items updated on active vBucket per second for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_queue_age"),
 			"Sum of disk queue item age in milliseconds",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_queue_drain"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_queue_drain"),
 			"Number of active items per second being written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_queue_fill"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_queue_fill"),
 			"Number of active items per second being put on the active item disk queue in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveQueueSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_queue_size"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_queue_size"),
 			"Number of active items waiting to be written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbActiveResidentItemsRatio: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_active_resident_items_ratio"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_active_resident_items_ratio"),
 			"Percentage of active items cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgActiveQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_avg_active_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_avg_active_queue_age"),
 			"Average age in seconds of active items in the active item queue for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgPendingQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_avg_pending_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_avg_pending_queue_age"),
 			"Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgReplicaQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_avg_replica_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_avg_replica_queue_age"),
 			"Average age in seconds of replica items in the replica item queue for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbAvgTotalQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_avg_total_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_avg_total_queue_age"),
 			"Average age in seconds of all items in the disk write queue for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingCurrItems: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_curr_items"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_curr_items"),
 			"Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingEject: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_eject"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_eject"),
 			"Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingItmMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_itm_memory"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_itm_memory"),
 			"Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingMetaDataMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_meta_data_memory"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_meta_data_memory"),
 			"Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingNum: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_num"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_num"),
 			"Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingNumNonResident: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_num_non_resident"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_num_non_resident"),
 			"Number of non resident vBuckets in the pending state for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingOpsCreate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_ops_create"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_ops_create"),
 			"New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingOpsUpdate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_ops_update"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_ops_update"),
 			"Number of items updated on pending vBucket per second for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_queue_age"),
 			"Sum of disk pending queue item age in milliseconds",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_queue_drain"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_queue_drain"),
 			"Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_queue_fill"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_queue_fill"),
 			"Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingQueueSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_queue_size"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_queue_size"),
 			"Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbPendingResidentItemsRatio: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_pending_resident_items_ratio"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_pending_resident_items_ratio"),
 			"Percentage of items in pending state vbuckets cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaCurrItems: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_curr_items"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_curr_items"),
 			"Number of items in replica vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaEject: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_eject"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_eject"),
 			"Number of items per second being ejected to disk from replica vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaItmMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_itm_memory"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_itm_memory"),
 			"Amount of replica user data cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaMetaDataMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_meta_data_memory"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_meta_data_memory"),
 			"Amount of replica item metadata consuming in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaNum: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_num"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_num"),
 			"Number of vBuckets in the replica state for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaNumNonResident: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_num_non_resident"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_num_non_resident"),
 			"stats_vb_replica_num_non_resident",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaOpsCreate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_ops_create"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_ops_create"),
 			"New items per second being inserted into replica vBuckets in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaOpsUpdate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_ops_update"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_ops_update"),
 			"Number of items updated on replica vBucket per second for this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_queue_age"),
 			"Sum of disk replica queue item age in milliseconds",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaQueueDrain: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_queue_drain"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_queue_drain"),
 			"Number of replica items per second being written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaQueueFill: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_queue_fill"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_queue_fill"),
 			"Number of replica items per second being put on the replica item disk queue in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaQueueSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_queue_size"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_queue_size"),
 			"Number of replica items waiting to be written to disk in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbReplicaResidentItemsRatio: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_replica_resident_items_ratio"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_replica_resident_items_ratio"),
 			"Percentage of replica items cached in RAM in this bucket",
 			[]string{"bucket"},
 			nil,
 		),
 		statsVbTotalQueueAge: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_vb_total_queue_age"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_vbuckets_total_queue_age"),
 			"Sum of disk queue item age in milliseconds",
 			[]string{"bucket"},
 			nil,
@@ -1331,13 +1303,10 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsDeleteHits
 	ch <- c.statsDeleteMisses
 	ch <- c.statsDiskCommitCount
-	ch <- c.statsDiskCommitTotal
 	ch <- c.statsDiskUpdateCount
-	ch <- c.statsDiskUpdateTotal
 	ch <- c.statsDiskWriteQueue
 	ch <- c.statsEpActiveAheadExceptions
 	ch <- c.statsEpActiveHlcDrift
-	ch <- c.statsEpActiveHlcDriftCount
 	ch <- c.statsEpClockCasDriftThresholdExceeded
 	ch <- c.statsEpBgFetched
 	ch <- c.statsEpCacheMissRate
@@ -1401,7 +1370,6 @@ func (c *bucketsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.statsEpResidentItemsRate
 	ch <- c.statsEpReplicaAheadExceptions
 	ch <- c.statsEpReplicaHlcDrift
-	ch <- c.statsEpReplicaHlcDriftCount
 	ch <- c.statsEpTmpOomErrors
 	ch <- c.statsEpVbTotal
 	ch <- c.statsEvictions
@@ -1538,13 +1506,10 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsDeleteHits, prometheus.GaugeValue, last(stats.Op.Samples.DeleteHits), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDeleteMisses, prometheus.GaugeValue, last(stats.Op.Samples.DeleteMisses), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskCommitCount, prometheus.GaugeValue, last(stats.Op.Samples.DiskCommitCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsDiskCommitTotal, prometheus.GaugeValue, last(stats.Op.Samples.DiskCommitTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskUpdateCount, prometheus.GaugeValue, last(stats.Op.Samples.DiskUpdateCount), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsDiskUpdateTotal, prometheus.GaugeValue, last(stats.Op.Samples.DiskUpdateTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsDiskWriteQueue, prometheus.GaugeValue, last(stats.Op.Samples.DiskWriteQueue), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpActiveAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveAheadExceptions), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDrift), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpActiveHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDriftCount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpClockCasDriftThresholdExceeded, prometheus.GaugeValue, last(stats.Op.Samples.EpClockCasDriftThresholdExceeded), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpBgFetched, prometheus.GaugeValue, last(stats.Op.Samples.EpBgFetched), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpCacheMissRate, prometheus.GaugeValue, last(stats.Op.Samples.EpCacheMissRate), bucket.Name)
@@ -1608,7 +1573,6 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.statsEpResidentItemsRate, prometheus.GaugeValue, last(stats.Op.Samples.EpResidentItemsRate), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpReplicaAheadExceptions, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaAheadExceptions), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDrift), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.statsEpReplicaHlcDriftCount, prometheus.GaugeValue, last(stats.Op.Samples.EpReplicaHlcDriftCount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpTmpOomErrors, prometheus.GaugeValue, last(stats.Op.Samples.EpTmpOomErrors), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEpVbTotal, prometheus.GaugeValue, last(stats.Op.Samples.EpVbTotal), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.statsEvictions, prometheus.GaugeValue, last(stats.Op.Samples.Evictions), bucket.Name)

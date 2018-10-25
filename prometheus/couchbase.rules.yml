@@ -62,7 +62,7 @@ groups:
     annotations:
       summary: 'A rebalance just failed'
   - alert: CouchbaseQuotaUsageHigh
-    expr: couchbase_bucket_basicstats_quotapercentused > 85
+    expr: couchbase_bucket_basicstats_quota_user_percent > 85
     for: 1m
     labels:
       severity: critical
@@ -77,14 +77,14 @@ groups:
       summary: '{{ $labels.bucket }}: Hard out of memory error'
       description: 'bucket {{ $labels.bucket }} is reporting hard out of memory errors'
   - alert: CouchbaseDiskUsageIncreasing
-    expr: sum by (instance) (couchbase_bucket_basicstats_diskused) - sum by (instance) (couchbase_bucket_basicstats_diskused offset 1d) > 1E+12
+    expr: sum by (instance) (couchbase_bucket_basicstats_diskused_bytes) - sum by (instance) (couchbase_bucket_basicstats_diskused_bytes offset 1d) > 1E+12
     for: 1s
     labels:
       severity: info
     annotations:
       summary: 'Disk usage increased more than 1tb in the last 24h'
   - alert: CouchbaseDiskUsageDecreasing
-    expr: sum by (instance) (couchbase_bucket_basicstats_diskused offset 1d) - sum by (instance) (couchbase_bucket_basicstats_diskused) > 1E+12
+    expr: sum by (instance) (couchbase_bucket_basicstats_diskused_bytes offset 1d) - sum by (instance) (couchbase_bucket_basicstats_diskused_bytes) > 1E+12
     for: 1s
     labels:
       severity: info

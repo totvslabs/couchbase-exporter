@@ -25,7 +25,7 @@ dashboard.new(
   grafana.template.new(
     'instance',
     '$PROMETHEUS_DS',
-    'label_values(couchbase_bucket_basicstats_dataused, instance)',
+    'label_values(couchbase_bucket_basicstats_dataused_bytes, instance)',
     label='Instance',
     refresh='load',
   )
@@ -34,7 +34,7 @@ dashboard.new(
   grafana.template.new(
     'bucket',
     '$PROMETHEUS_DS',
-    'label_values(couchbase_bucket_basicstats_dataused{instance="$instance"}, bucket)',
+    'label_values(couchbase_bucket_basicstats_dataused_bytes{instance="$instance"}, bucket)',
     label='Bucket',
     refresh='load',
     multi=true,
@@ -153,7 +153,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused{bucket=~"$bucket",instance=~"$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size{bucket=~"$bucket",instance=~"$instance"}))',
+        'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size{bucket=~"$bucket",instance=~"$instance"}))',
       )
     )
   )
@@ -332,19 +332,19 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_basicstats_memused{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"}',
         legendFormat='{{ bucket }}.Usage',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_mem_high_wat{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_mem_high_wat_bytes{bucket=~"$bucket",instance=~"$instance"}',
         legendFormat='{{ bucket }}.HighWatermark',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_mem_low_wat{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_mem_low_wat_bytes{bucket=~"$bucket",instance=~"$instance"}',
         legendFormat='{{ bucket }}.LowWatermark',
       )
     )
@@ -628,13 +628,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_xdcr_count{bucket=~"$bucket", instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_dcp_xdcr_connections{bucket=~"$bucket", instance=~"$instance"}',
         legendFormat='{{ bucket }}: connections'
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_xdcr_producer_count{bucket=~"$bucket", instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_dcp_xdcr_producers{bucket=~"$bucket", instance=~"$instance"}',
         legendFormat='{{ bucket }}: producers'
       )
     )
