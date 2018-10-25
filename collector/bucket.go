@@ -1486,7 +1486,7 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, bucket := range buckets {
-		log.Infof("Collecting %s bucket metrics...", bucket.Name)
+		log.Debugf("Collecting %s bucket metrics...", bucket.Name)
 		stats, err := c.client.BucketStats(bucket.Name)
 		if err != nil {
 			ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 0)
