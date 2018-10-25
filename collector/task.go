@@ -21,9 +21,6 @@ type taskCollector struct {
 }
 
 // NewTasksCollector tasks collector
-//
-// TODO: add PerNode metrics
-//
 func NewTasksCollector(client client.Client) prometheus.Collector {
 	const subsystem = "task"
 	return &taskCollector{

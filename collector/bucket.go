@@ -198,9 +198,6 @@ type bucketsCollector struct {
 }
 
 // NewBucketsCollector buckets collector
-//
-// TODO: add help to the metrics
-//
 func NewBucketsCollector(client client.Client) prometheus.Collector {
 	const subsystem = "bucket"
 	return &bucketsCollector{

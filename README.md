@@ -25,15 +25,24 @@ $ couchbase-exporter --couchbase.username adm --couchbase.password secret
 
 > check `couchbase-exporter --help` for more options!
 
+## What's included
+
+- the exporter itself
+- a grafana dashboard
+- an example of alerting rules
+
 ## Roadmap
 
 - [x] export task metrics
 - [x] export bucket metrics
 - [x] export node metrics
 - [x] export cluster metrics
-- [ ] provide alerting rules examples
-- [ ] provide grafana dashboards (maybe use jsonnet (https://github.com/grafana/grafonnet-lib)?)
+- [x] provide alerting rules examples
+- [x] provide grafana dashboards (maybe use jsonnet (https://github.com/grafana/grafonnet-lib)?)
 - [ ] check other TODOs
 - [ ] improve metric names (add `_bytes`, `_seconds`, `_total`, etc)
+- [ ] add some sort of tests
 
-~~- [ ] do the `if cb5` and `if cb4` accordingly~~: we will support CB5 only.
+<!--
+TODO: when the needed PRs get merged into grafonnet, stop using my fork
+ -->
