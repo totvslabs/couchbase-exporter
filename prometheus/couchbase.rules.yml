@@ -1,0 +1,72 @@
+groups:
+- name: couchbase
+  rules:
+  - record: couchbase::node_count
+    expr: count(couchbase_node_interestingstats_ops) by (instance)
+  - alert: CouchbaseDown
+    expr: up{job="couchbase"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      page: true
+    annotations:
+      summary: CouchBase is down
+  - alert: CouchbaseNodesDying
+    expr: couchbase::node_count offset 10m > couchbase::node_count + 1
+    for: 5m
+    labels:
+      severity: critical
+      page: true
+    annotations:
+      description: There are only {{ $value }} CouchBase nodes running
+      summary: Seems like couchbase nodes are dying
+  - alert: CouchbaseRebalanceStarted
+    expr: increase(couchbase_cluster_counters_rebalance_start[5m]) > 0
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'A rebalance just started'
+  - alert: CouchbaseRebalanceSuccess
+    expr: increase(couchbase_cluster_counters_rebalance_success[5m]) > 0
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'A rebalance just successfully finished'
+  - alert: CouchbaseRebalanceFailed
+    expr: increase(couchbase_cluster_counters_rebalance_fail[5m]) > 0
+    for: 1s
+    labels:
+      severity: warning
+    annotations:
+      summary: 'A rebalance just failed'
+  - alert: CouchbaseQuotaUsageHigh
+    expr: couchbase_bucket_basicstats_quotapercentused > 85
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: 'CouchBase quota usage for {{ $labels.bucket }} is {{ $value | printf "%.2f" }}%'
+  - alert: CouchbaseHardOutOfMemoryErrors
+    expr: increase(couchbase_bucket_stats_ep_oom_errors[5m]) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{{ $labels.bucket }}: Hard out of memory error'
+      description: 'bucket {{ $labels.bucket }} is reporting hard out of memory errors'
+  - alert: CouchbaseDiskUsageIncreasing
+    expr: sum by (instance) (couchbase_bucket_basicstats_diskused) - sum by (instance) (couchbase_bucket_basicstats_diskused offset 1d) > 1E+12
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'Disk usage increased more than 1tb in the last 24h'
+  - alert: CouchbaseDiskUsageDecreasing
+    expr: sum by (instance) (couchbase_bucket_basicstats_diskused offset 1d) - sum by (instance) (couchbase_bucket_basicstats_diskused) > 1E+12
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'Disk usage decreased more than 1tb in the last 24h'
