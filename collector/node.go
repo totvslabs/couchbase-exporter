@@ -220,7 +220,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
 	for _, node := range nodes.Nodes {
-		log.Infof("Collecting %s node metrics...", node.Hostname)
+		log.Debugf("Collecting %s node metrics...", node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.healthy, prometheus.GaugeValue, fromBool(node.Status == "healthy"), node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.systemStatsCPUUtilizationRate, prometheus.GaugeValue, node.SystemStats.CPUUtilizationRate, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.systemStatsSwapTotal, prometheus.GaugeValue, float64(node.SystemStats.SwapTotal), node.Hostname)

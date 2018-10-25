@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -14,22 +15,24 @@ import (
 
 var (
 	version           = "dev"
-	listenAddress     = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9420").String()
-	metricsPath       = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
-	couchbaseURL      = kingpin.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
-	couchbaseUsername = kingpin.Flag("couchbase.username", "Couchbase username").String()
-	couchbasePassword = kingpin.Flag("couchbase.password", "Couchbase password").OverrideDefaultFromEnvar("COUCHBASE_PASSWORD").String()
+	app               = kingpin.New("couchbase-exporter", "exports couchbase metrics in the prometheus format")
+	listenAddress     = app.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9420").String()
+	metricsPath       = app.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
+	couchbaseURL      = app.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
+	couchbaseUsername = app.Flag("couchbase.username", "Couchbase username").String()
+	couchbasePassword = app.Flag("couchbase.password", "Couchbase password").OverrideDefaultFromEnvar("COUCHBASE_PASSWORD").String()
 
-	tasks   = kingpin.Flag("collectors.tasks", "Wether to collect tasks metrics").Default("true").Bool()
-	buckets = kingpin.Flag("collectors.buckets", "Wether to collect buckets metrics").Default("true").Bool()
-	nodes   = kingpin.Flag("collectors.nodes", "Wether to collect nodes metrics").Default("true").Bool()
-	cluster = kingpin.Flag("collectors.cluster", "Wether to collect cluster metrics").Default("true").Bool()
+	tasks   = app.Flag("collectors.tasks", "Wether to collect tasks metrics").Default("true").Bool()
+	buckets = app.Flag("collectors.buckets", "Wether to collect buckets metrics").Default("true").Bool()
+	nodes   = app.Flag("collectors.nodes", "Wether to collect nodes metrics").Default("true").Bool()
+	cluster = app.Flag("collectors.cluster", "Wether to collect cluster metrics").Default("true").Bool()
 )
 
 func main() {
-	kingpin.Version(version)
-	kingpin.HelpFlag.Short('h')
-	kingpin.Parse()
+	log.AddFlags(app)
+	app.Version(version)
+	app.HelpFlag.Short('h')
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	log.Infof("starting couchbase-exporter %s...", version)
 
