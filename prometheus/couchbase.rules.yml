@@ -17,28 +17,28 @@ groups:
       severity: critical
       page: true
     annotations:
-      summary: Couchbase is down
+      summary: 'Couchbase is down'
   - alert: CouchbaseNotBalanced
     expr: couchbase_cluster_balanced == 0 and couchbase_task_rebalance_progress == 0
     for: 10m
     labels:
       severity: critical
     annotations:
-      summary: Couchbase cluster is not balanced
+      summary: 'Couchbase cluster is not balanced'
   - alert: CouchbaseTooFragmented
     expr: couchbase_bucket_couch_docs_fragmentation > 30 and couchbase_task_compacting_progress == 0
     for: 10m
     labels:
       severity: warning
     annotations:
-      summary: '{{ $labels.bucket }}: too fragmented'
+      summary: '{{ $labels.bucket }}: too fragmented ({{ $value | printf "%.2f" }}%)'
   - alert: CouchbaseNodesDying
     expr: couchbase::node_count offset 10m > couchbase::node_count + 1
     for: 5m
     labels:
       severity: critical
     annotations:
-      description: There are only {{ $value }} Couchbase nodes running
+      description: 'There are only {{ $value }} Couchbase nodes running'
       summary: Seems like couchbase nodes are dying
   - alert: CouchbaseRebalanceStarted
     expr: increase(couchbase_cluster_counters_rebalance_start[5m]) > 0
