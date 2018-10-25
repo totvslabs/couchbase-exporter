@@ -91,7 +91,7 @@ func NewClusterCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		maxBucketCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "max_bucket_count"),
+			prometheus.BuildFQName(namespace, subsystem, "max_buckets"),
 			"Maximum number of buckets allowed",
 			nil,
 			nil,

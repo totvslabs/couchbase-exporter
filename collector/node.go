@@ -16,11 +16,6 @@ type nodesCollector struct {
 	up                                       *prometheus.Desc
 	scrapeDuration                           *prometheus.Desc
 	healthy                                  *prometheus.Desc
-	systemStatsCPUUtilizationRate            *prometheus.Desc
-	systemStatsSwapTotal                     *prometheus.Desc
-	systemStatsSwapUsed                      *prometheus.Desc
-	systemStatsMemTotal                      *prometheus.Desc
-	systemStatsMemFree                       *prometheus.Desc
 	interestingStatsCouchDocsActualDiskSize  *prometheus.Desc
 	interestingStatsCouchDocsDataSize        *prometheus.Desc
 	interestingStatsCouchViewsActualDiskSize *prometheus.Desc
@@ -57,36 +52,6 @@ func NewNodesCollector(client client.Client) prometheus.Collector {
 		healthy: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "healthy"),
 			"Is this node healthy",
-			[]string{"node"},
-			nil,
-		),
-		systemStatsCPUUtilizationRate: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "systemstats_cpu_utilization_rate"),
-			"systemstats_cpu_utilization_rate",
-			[]string{"node"},
-			nil,
-		),
-		systemStatsSwapTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "systemstats_swap_total"),
-			"systemstats_swap_total",
-			[]string{"node"},
-			nil,
-		),
-		systemStatsSwapUsed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "systemstats_swap_used"),
-			"systemstats_swap_used",
-			[]string{"node"},
-			nil,
-		),
-		systemStatsMemTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "systemstats_mem_total"),
-			"systemstats_mem_total",
-			[]string{"node"},
-			nil,
-		),
-		systemStatsMemFree: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "systemstats_mem_free"),
-			"systemstats_mem_free",
 			[]string{"node"},
 			nil,
 		),
@@ -182,11 +147,6 @@ func (c *nodesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up
 	ch <- c.scrapeDuration
 	ch <- c.healthy
-	ch <- c.systemStatsCPUUtilizationRate
-	ch <- c.systemStatsSwapTotal
-	ch <- c.systemStatsSwapUsed
-	ch <- c.systemStatsMemTotal
-	ch <- c.systemStatsMemFree
 	ch <- c.interestingStatsCouchDocsActualDiskSize
 	ch <- c.interestingStatsCouchDocsDataSize
 	ch <- c.interestingStatsCouchViewsActualDiskSize
@@ -222,11 +182,6 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, node := range nodes.Nodes {
 		log.Debugf("Collecting %s node metrics...", node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.healthy, prometheus.GaugeValue, fromBool(node.Status == "healthy"), node.Hostname)
-		ch <- prometheus.MustNewConstMetric(c.systemStatsCPUUtilizationRate, prometheus.GaugeValue, node.SystemStats.CPUUtilizationRate, node.Hostname)
-		ch <- prometheus.MustNewConstMetric(c.systemStatsSwapTotal, prometheus.GaugeValue, float64(node.SystemStats.SwapTotal), node.Hostname)
-		ch <- prometheus.MustNewConstMetric(c.systemStatsSwapUsed, prometheus.GaugeValue, float64(node.SystemStats.SwapUsed), node.Hostname)
-		ch <- prometheus.MustNewConstMetric(c.systemStatsMemTotal, prometheus.GaugeValue, float64(node.SystemStats.MemTotal), node.Hostname)
-		ch <- prometheus.MustNewConstMetric(c.systemStatsMemFree, prometheus.GaugeValue, float64(node.SystemStats.MemFree), node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchDocsActualDiskSize, prometheus.GaugeValue, node.InterestingStats.CouchDocsActualDiskSize, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchDocsDataSize, prometheus.GaugeValue, node.InterestingStats.CouchDocsDataSize, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchViewsActualDiskSize, prometheus.GaugeValue, node.InterestingStats.CouchViewsActualDiskSize, node.Hostname)
