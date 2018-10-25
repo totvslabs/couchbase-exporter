@@ -1,5 +1,8 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+  - make grafana
 builds:
 - env:
   - CGO_ENABLED=0
@@ -8,10 +11,13 @@ builds:
   goos:
   - linux
   - darwin
+archive:
+  files:
+  - grafana/dashboard.json
 dockers:
 - image_templates:
-  - "caarlos0/couchbase-exporter:latest"
-  - "caarlos0/couchbase-exporter:{{ .Tag }}"
+  - "totvslabs/couchbase-exporter:latest"
+  - "totvslabs/couchbase-exporter:{{ .Tag }}"
   build_flag_templates:
   - "--label=org.label-schema.schema-version=1.0"
   - "--label=org.label-schema.version={{ .Version }}"
