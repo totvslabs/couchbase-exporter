@@ -41,21 +41,21 @@ groups:
       description: 'There are only {{ $value }} Couchbase nodes running'
       summary: Seems like couchbase nodes are dying
   - alert: CouchbaseRebalanceStarted
-    expr: increase(couchbase_cluster_counters_rebalance_start[5m]) > 0
+    expr: increase(couchbase_cluster_rebalance_start_total[5m]) > 0
     for: 1s
     labels:
       severity: info
     annotations:
       summary: 'A rebalance just started'
   - alert: CouchbaseRebalanceSuccess
-    expr: increase(couchbase_cluster_counters_rebalance_success[5m]) > 0
+    expr: increase(couchbase_cluster_rebalance_success_total[5m]) > 0
     for: 1s
     labels:
       severity: info
     annotations:
       summary: 'A rebalance just successfully finished'
   - alert: CouchbaseRebalanceFailed
-    expr: increase(couchbase_cluster_counters_rebalance_fail[5m]) > 0
+    expr: increase(couchbase_cluster_rebalance_fail_total[5m]) > 0
     for: 1s
     labels:
       severity: warning
