@@ -58,7 +58,7 @@ dashboard.new(
         {
           value: 'null',
           op: '=',
-          text: '0',
+          text: 'OK',
         },
       ]
     )
@@ -81,7 +81,7 @@ dashboard.new(
         {
           value: 'null',
           op: '=',
-          text: '0',
+          text: 'OK',
         },
       ]
     )
