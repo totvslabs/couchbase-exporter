@@ -1,3 +1,10 @@
+#
+#
+# Do not edit.
+#
+# source: https://github.com/totvslabs/couchbase-exporter/blob/master/prometheus/couchbase.rules.yml
+#
+#
 groups:
 - name: couchbase
   rules:
@@ -25,7 +32,6 @@ groups:
       severity: warning
     annotations:
       summary: '{{ $labels.bucket }}: too fragmented'
-
   - alert: CouchbaseNodesDying
     expr: couchbase::node_count offset 10m > couchbase::node_count + 1
     for: 5m
