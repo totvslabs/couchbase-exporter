@@ -87,9 +87,6 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
 	for _, task := range tasks {
-		if task.Status != "running" {
-			continue
-		}
 		switch task.Type {
 		case "rebalance":
 			ch <- prometheus.MustNewConstMetric(c.rebalance, prometheus.GaugeValue, task.Progress)

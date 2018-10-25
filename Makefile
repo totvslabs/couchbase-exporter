@@ -26,6 +26,7 @@ cover: test
 
 fmt:
 	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do gofmt -w -s "$$file"; goimports -w "$$file"; done
+	jsonnet fmt -i ./grafana/*.jsonnet
 .PHONY: fmt
 
 lint:
@@ -49,5 +50,10 @@ todo:
 		--color \
 		-nRo -E ' TODO:.*|SkipNow' .
 .PHONY: todo
+
+grafana:
+	jsonnet -J grafana grafana/dashboard.jsonnet -o grafana/dashboard.json
+	cat grafana/dashboard.json | pbcopy
+.PHONY: grafana
 
 .DEFAULT_GOAL := build
