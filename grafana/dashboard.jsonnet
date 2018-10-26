@@ -478,13 +478,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_producer_count{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replica_producers{instance=~"$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}: DCP Senders',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_count{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replicas{instance=~"$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}: DCP Connections',
       )
     )
