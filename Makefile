@@ -39,7 +39,7 @@ lint:
 ci: build test lint
 .PHONY: ci
 
-build:
+build: grafana
 	go build
 .PHONY: build
 
@@ -55,7 +55,6 @@ todo:
 
 grafana:
 	jsonnet -J grafana grafana/dashboard.jsonnet -o grafana/dashboard.json
-	cat grafana/dashboard.json | pbcopy
 .PHONY: grafana
 
 .DEFAULT_GOAL := build
