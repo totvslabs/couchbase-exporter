@@ -460,7 +460,7 @@ dashboard.new(
     .addTarget(
       prometheus.target(
         'couchbase_task_rebalance_progress{instance=~"$instance"}',
-        legendFormat='',
+        legendFormat='{{ instance }}',
       )
     )
   )
@@ -478,13 +478,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_producer_count{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replica_producers{instance=~"$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}: DCP Senders',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_count{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replicas{instance=~"$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}: DCP Connections',
       )
     )
@@ -636,6 +636,49 @@ dashboard.new(
       prometheus.target(
         'couchbase_bucket_stats_ep_dcp_xdcr_producers{bucket=~"$bucket", instance=~"$instance"}',
         legendFormat='{{ bucket }}: producers'
+      )
+    )
+  )
+)
+.addRow(
+  row.new(
+    title='Scrape times',
+    collapse=true,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Scrape durations',
+      span=12,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      format='s',
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_cluster_scrape_duration_seconds{instance="$instance"}',
+        legendFormat='cluster',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_scrape_duration_seconds{instance="$instance"}',
+        legendFormat='bucket',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_node_scrape_duration_seconds{instance="$instance"}',
+        legendFormat='node',
+      )
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_task_scrape_duration_seconds{instance="$instance"}',
+        legendFormat='task',
       )
     )
   )
