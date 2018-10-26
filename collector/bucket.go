@@ -209,7 +209,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		basicstatsDataused: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "basicstats_dataused"),
+			prometheus.BuildFQName(namespace, subsystem, "basicstats_dataused_bytes"),
 			"basicstats_dataused",
 			[]string{"bucket"},
 			nil,
