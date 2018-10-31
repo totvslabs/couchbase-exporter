@@ -731,7 +731,7 @@ func NewBucketsCollector(client client.Client) prometheus.Collector {
 			nil,
 		),
 		statsEpMaxSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "stats_ep_max_size"),
+			prometheus.BuildFQName(namespace, subsystem, "stats_ep_max_size_bytes"),
 			"The maximum amount of memory this bucket can use",
 			[]string{"bucket"},
 			nil,
