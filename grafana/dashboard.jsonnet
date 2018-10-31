@@ -153,7 +153,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size{bucket=~"$bucket",instance=~"$instance"}))',
+        'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size_bytes{bucket=~"$bucket",instance=~"$instance"}))',
       )
     )
   )
@@ -327,25 +327,24 @@ dashboard.new(
       legend_current=true,
       legend_sort='current',
       legend_sortDesc=true,
-      format='decbytes',
+      format='percent',
       min=0,
+      max=100,
+      thresholds=[
+        {
+          "value": 90,
+          "colorMode": "critical",
+          "op": "gt",
+          "fill": true,
+          "line": true,
+          "yaxis": "left"
+        }
+      ],
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"}',
+        '100 * couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"} / couchbase_bucket_stats_ep_max_size_bytes',
         legendFormat='{{ bucket }}.Usage',
-      )
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_mem_high_wat_bytes{bucket=~"$bucket",instance=~"$instance"}',
-        legendFormat='{{ bucket }}.HighWatermark',
-      )
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_mem_low_wat_bytes{bucket=~"$bucket",instance=~"$instance"}',
-        legendFormat='{{ bucket }}.LowWatermark',
       )
     )
   )
