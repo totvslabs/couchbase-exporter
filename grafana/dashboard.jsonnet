@@ -254,7 +254,7 @@ dashboard.new(
     )
     .addSeriesOverride(
       {
-        alias: '/set/',
+        alias: '/Sets/',
         transform: 'negative-Y',
       }
     )
@@ -344,7 +344,7 @@ dashboard.new(
     .addTarget(
       prometheus.target(
         '100 * couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"} / couchbase_bucket_stats_ep_max_size_bytes',
-        legendFormat='{{ bucket }}.Usage',
+        legendFormat='{{ bucket }}',
       )
     )
   )
@@ -501,7 +501,7 @@ dashboard.new(
     )
     .addSeriesOverride(
       {
-        alias: '/remaining/',
+        alias: '/Remaining/',
         transform: 'negative-Y',
       }
     )
@@ -557,7 +557,7 @@ dashboard.new(
     )
     .addSeriesOverride(
       {
-        alias: '/remaining/',
+        alias: '/Remaining/',
         transform: 'negative-Y',
       }
     )
