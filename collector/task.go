@@ -98,7 +98,11 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 				ch <- prometheus.MustNewConstMetric(c.rebalancePerNode, prometheus.GaugeValue, progress.Progress, node)
 			}
 		case "bucket_compaction":
-			ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, task.Progress, task.Bucket)
+			// XXX: there can be more than one compacting tasks for the same
+			// bucket for now, let's report just the first.
+			if ok := compactsReported[task.Bucket]; !ok {
+				ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, task.Progress, task.Bucket)
+			}
 			compactsReported[task.Bucket] = true
 		default:
 			log.With("type", task.Type).Error("not implemented")
