@@ -57,7 +57,7 @@ dashboard.new(
       thresholds='0,1',
       colors=[
         '#d44a3a',
-        '#299c46',
+        '#d44a3a',
         '#299c46',
       ],
       valueMaps=[
