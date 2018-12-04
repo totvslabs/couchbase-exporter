@@ -26,6 +26,7 @@ type clusterCollector struct {
 	countersRebalanceStart     *prometheus.Desc
 	countersRebalanceSuccess   *prometheus.Desc
 	countersRebalanceFail      *prometheus.Desc
+	countersRebalanceStop      *prometheus.Desc
 	countersFailover           *prometheus.Desc
 	countersFailoverComplete   *prometheus.Desc
 	countersFailoverIncomplete *prometheus.Desc
@@ -114,6 +115,12 @@ func NewClusterCollector(client client.Client) prometheus.Collector {
 		countersRebalanceFail: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "rebalance_fail_total"),
 			"Number of rebalance fails since cluster is up",
+			nil,
+			nil,
+		),
+		countersRebalanceStop: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "rebalance_stop_total"),
+			"Number of rebalances stopped since cluster is up",
 			nil,
 			nil,
 		),
@@ -225,6 +232,7 @@ func (c *clusterCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.countersRebalanceStart
 	ch <- c.countersRebalanceSuccess
 	ch <- c.countersRebalanceFail
+	ch <- c.countersRebalanceStop
 	ch <- c.countersFailover
 	ch <- c.countersFailoverComplete
 	ch <- c.countersFailoverIncomplete
@@ -271,6 +279,7 @@ func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.countersRebalanceStart, prometheus.CounterValue, float64(cluster.Counters.RebalanceStart))
 	ch <- prometheus.MustNewConstMetric(c.countersRebalanceSuccess, prometheus.CounterValue, float64(cluster.Counters.RebalanceSuccess))
 	ch <- prometheus.MustNewConstMetric(c.countersRebalanceFail, prometheus.CounterValue, float64(cluster.Counters.RebalanceFail))
+	ch <- prometheus.MustNewConstMetric(c.countersRebalanceStop, prometheus.CounterValue, float64(cluster.Counters.RebalanceStop))
 	ch <- prometheus.MustNewConstMetric(c.countersFailover, prometheus.CounterValue, float64(cluster.Counters.Failover+cluster.Counters.FailoverNode))
 	ch <- prometheus.MustNewConstMetric(c.countersFailoverComplete, prometheus.CounterValue, float64(cluster.Counters.FailoverComplete))
 	ch <- prometheus.MustNewConstMetric(c.countersFailoverIncomplete, prometheus.CounterValue, float64(cluster.Counters.FailoverIncomplete))

@@ -62,6 +62,13 @@ groups:
       severity: info
     annotations:
       summary: 'A rebalance just successfully finished'
+  - alert: CouchbaseRebalanceStopped
+    expr: increase(couchbase_cluster_rebalance_stop_total[5m]) > 0
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'A rebalance was stopped'
   - alert: CouchbaseRebalanceFailed
     expr: increase(couchbase_cluster_rebalance_fail_total[5m]) > 0
     for: 1s

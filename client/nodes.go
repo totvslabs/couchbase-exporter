@@ -69,6 +69,7 @@ type Counters struct {
 	RebalanceStart          int64 `json:"rebalance_start"`
 	RebalanceSuccess        int64 `json:"rebalance_success"`
 	RebalanceFail           int64 `json:"rebalance_fail"`
+	RebalanceStop           int64 `json:"rebalance_stop"`
 	FailoverNode            int64 `json:"failover_node"`
 	Failover                int64 `json:"failover"`
 	FailoverComplete        int64 `json:"failover_complete"`
