@@ -35,6 +35,7 @@ type nodesCollector struct {
 // NewNodesCollector nodes collector
 func NewNodesCollector(client client.Client) prometheus.Collector {
 	const subsystem = "node"
+	// nolint: lll
 	return &nodesCollector{
 		client: client,
 		up: prometheus.NewDesc(
@@ -179,6 +180,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
+	// nolint: lll
 	for _, node := range nodes.Nodes {
 		log.Debugf("Collecting %s node metrics...", node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.healthy, prometheus.GaugeValue, fromBool(node.Status == "healthy"), node.Hostname)
@@ -198,5 +200,6 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsEpBgFetched, prometheus.GaugeValue, node.InterestingStats.EpBgFetched, node.Hostname)
 	}
 
+	// nolint: lll
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 }

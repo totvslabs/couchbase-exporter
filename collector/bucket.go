@@ -194,6 +194,7 @@ type bucketsCollector struct {
 // NewBucketsCollector buckets collector
 func NewBucketsCollector(client client.Client) prometheus.Collector {
 	const subsystem = "bucket"
+	// nolint: lll
 	return &bucketsCollector{
 		client: client,
 		up: prometheus.NewDesc(
@@ -1437,6 +1438,7 @@ func (c *bucketsCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	// nolint: lll
 	for _, bucket := range buckets {
 		log.Debugf("Collecting %s bucket metrics...", bucket.Name)
 		stats, err := c.client.BucketStats(bucket.Name)

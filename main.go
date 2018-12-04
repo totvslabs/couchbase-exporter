@@ -13,6 +13,7 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+// nolint: gochecknoglobals,lll
 var (
 	version           = "dev"
 	app               = kingpin.New("couchbase-exporter", "exports couchbase metrics in the prometheus format")

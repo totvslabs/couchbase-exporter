@@ -342,13 +342,13 @@ dashboard.new(
       max=100,
       thresholds=[
         {
-          "value": 90,
-          "colorMode": "critical",
-          "op": "gt",
-          "fill": true,
-          "line": true,
-          "yaxis": "left"
-        }
+          value: 90,
+          colorMode: 'critical',
+          op: 'gt',
+          fill: true,
+          line: true,
+          yaxis: 'left',
+        },
       ],
     )
     .addTarget(
