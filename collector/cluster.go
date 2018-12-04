@@ -23,10 +23,12 @@ type clusterCollector struct {
 	rebalanceStatus  *prometheus.Desc
 	maxBucketCount   *prometheus.Desc
 
-	countersRebalanceStart   *prometheus.Desc
-	countersRebalanceSuccess *prometheus.Desc
-	countersRebalanceFail    *prometheus.Desc
-	countersFailoverNode     *prometheus.Desc
+	countersRebalanceStart     *prometheus.Desc
+	countersRebalanceSuccess   *prometheus.Desc
+	countersRebalanceFail      *prometheus.Desc
+	countersFailover           *prometheus.Desc
+	countersFailoverComplete   *prometheus.Desc
+	countersFailoverIncomplete *prometheus.Desc
 
 	storagetotalsRAMQuotatotal        *prometheus.Desc
 	storagetotalsRAMQuotaused         *prometheus.Desc
@@ -115,9 +117,21 @@ func NewClusterCollector(client client.Client) prometheus.Collector {
 			nil,
 			nil,
 		),
-		countersFailoverNode: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "failover_node_total"),
+		countersFailover: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "failover_total"),
 			"Number of failovers since cluster is up",
+			nil,
+			nil,
+		),
+		countersFailoverComplete: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "failover_complete_total"),
+			"Number of failovers completed successfully since cluster is up",
+			nil,
+			nil,
+		),
+		countersFailoverIncomplete: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "failover_incomplete_total"),
+			"Number of failovers that failed since cluster is up",
 			nil,
 			nil,
 		),
@@ -211,7 +225,9 @@ func (c *clusterCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.countersRebalanceStart
 	ch <- c.countersRebalanceSuccess
 	ch <- c.countersRebalanceFail
-	ch <- c.countersFailoverNode
+	ch <- c.countersFailover
+	ch <- c.countersFailoverComplete
+	ch <- c.countersFailoverIncomplete
 
 	ch <- c.storagetotalsRAMQuotatotal
 	ch <- c.storagetotalsRAMQuotaused
@@ -255,7 +271,9 @@ func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.countersRebalanceStart, prometheus.CounterValue, float64(cluster.Counters.RebalanceStart))
 	ch <- prometheus.MustNewConstMetric(c.countersRebalanceSuccess, prometheus.CounterValue, float64(cluster.Counters.RebalanceSuccess))
 	ch <- prometheus.MustNewConstMetric(c.countersRebalanceFail, prometheus.CounterValue, float64(cluster.Counters.RebalanceFail))
-	ch <- prometheus.MustNewConstMetric(c.countersFailoverNode, prometheus.CounterValue, float64(cluster.Counters.FailoverNode))
+	ch <- prometheus.MustNewConstMetric(c.countersFailover, prometheus.CounterValue, float64(cluster.Counters.Failover+cluster.Counters.FailoverNode))
+	ch <- prometheus.MustNewConstMetric(c.countersFailoverComplete, prometheus.CounterValue, float64(cluster.Counters.FailoverComplete))
+	ch <- prometheus.MustNewConstMetric(c.countersFailoverIncomplete, prometheus.CounterValue, float64(cluster.Counters.FailoverIncomplete))
 
 	ch <- prometheus.MustNewConstMetric(c.storagetotalsRAMQuotatotal, prometheus.GaugeValue, cluster.StorageTotals.RAM.QuotaTotal)
 	ch <- prometheus.MustNewConstMetric(c.storagetotalsRAMQuotaused, prometheus.GaugeValue, cluster.StorageTotals.RAM.QuotaUsed)
