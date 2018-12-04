@@ -46,6 +46,7 @@ type clusterCollector struct {
 // NewClusterCollector cluster collector
 func NewClusterCollector(client client.Client) prometheus.Collector {
 	const subsystem = "cluster"
+	// nolint: lll
 	return &clusterCollector{
 		client: client,
 		up: prometheus.NewDesc(
@@ -228,6 +229,7 @@ func (c *clusterCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 // Collect all metrics
+// nolint: lll
 func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()

@@ -3,18 +3,12 @@ TEST_PATTERN?=.
 TEST_OPTIONS?=
 OS=$(shell uname -s)
 
-export PATH := ./bin:$(PATH)
+export GO111MODULE := on
 
 setup:
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh
-ifeq ($(OS), Darwin)
-	brew install dep
-else
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-endif
-	dep ensure -vendor-only
+	go mod download
 .PHONY: setup
-
 
 test:
 	go test $(TEST_OPTIONS) -failfast -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.txt $(SOURCE_FILES) -run $(TEST_PATTERN) -timeout=2m
@@ -30,8 +24,7 @@ fmt:
 .PHONY: fmt
 
 lint:
-	# TODO: fix lll issues
-	./bin/golangci-lint run --enable-all --disable=lll ./...
+	./bin/golangci-lint run --enable-all ./...
 	promtool check rules prometheus/couchbase.rules.yml
 	jsonnet fmt --test ./grafana/*.jsonnet
 .PHONY: lint
@@ -46,7 +39,8 @@ build: grafana
 todo:
 	@grep \
 		--exclude-dir=vendor \
-		--exclude-dir=node_modules \
+		--exclude-dir=bin \
+		--exclude-dir=grafana/grafonnet \
 		--exclude=Makefile \
 		--text \
 		--color \

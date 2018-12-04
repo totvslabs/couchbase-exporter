@@ -23,6 +23,7 @@ type taskCollector struct {
 // NewTasksCollector tasks collector
 func NewTasksCollector(client client.Client) prometheus.Collector {
 	const subsystem = "task"
+	// nolint: lll
 	return &taskCollector{
 		client: client,
 		up: prometheus.NewDesc(
@@ -90,6 +91,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
 	var compactsReported = map[string]bool{}
+	// nolint: lll
 	for _, task := range tasks {
 		switch task.Type {
 		case "rebalance":
@@ -113,10 +115,12 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	// and etc.
 	for _, bucket := range buckets {
 		if ok := compactsReported[bucket.Name]; !ok {
+			// nolint: lll
 			ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, 0, bucket.Name)
 		}
 		compactsReported[bucket.Name] = true
 	}
 
+	// nolint: lll
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 }
