@@ -9,7 +9,7 @@ groups:
 - name: couchbase
   rules:
   - record: couchbase::node_count
-    expr: count(couchbase_node_interestingstats_ops) by (instance)
+    expr: count(couchbase_node_healthy) by (instance)
   - alert: CouchbaseDown
     expr: up{job="couchbase"} == 0
     for: 1m
@@ -30,6 +30,7 @@ groups:
     for: 1m
     labels:
       severity: critical
+      page: true
     annotations:
       summary: "Node {{ $labels.node }} is not healthy, you may want to fail it over"
   - alert: CouchbaseTooFragmented
@@ -61,6 +62,13 @@ groups:
       severity: info
     annotations:
       summary: 'A rebalance just successfully finished'
+  - alert: CouchbaseRebalanceStopped
+    expr: increase(couchbase_cluster_rebalance_stop_total[5m]) > 0
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'A rebalance was stopped'
   - alert: CouchbaseRebalanceFailed
     expr: increase(couchbase_cluster_rebalance_fail_total[5m]) > 0
     for: 1s
@@ -68,6 +76,28 @@ groups:
       severity: warning
     annotations:
       summary: 'A rebalance just failed'
+  - alert: CouchbaseFailover
+    expr: increase(couchbase_cluster_failover_total[5m]) > 0
+    for: 1s
+    labels:
+      severity: warning
+    annotations:
+      summary: 'A node has been failover has started'
+  - alert: CouchbaseFailoverComplete
+    expr: increase(couchbase_cluster_failover_complete_total[5m]) > 0
+    for: 1s
+    labels:
+      severity: info
+    annotations:
+      summary: 'A node has been failover has been completed'
+  - alert: CouchbaseFailoverIncomplete
+    expr: increase(couchbase_cluster_failover_incomplete_total[5m]) > 0
+    for: 1s
+    labels:
+      severity: critical
+      page: true
+    annotations:
+      summary: 'A node has been failover failed'
   - alert: CouchbaseQuotaUsageHigh
     expr: couchbase_bucket_basicstats_quota_user_percent > 85
     for: 1m

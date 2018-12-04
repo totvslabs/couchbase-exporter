@@ -60,11 +60,20 @@ type Nodes struct {
 	Balanced        bool     `json:"balanced"`
 }
 
+// Counters from the cluster
+// Couchbase does not expose a "null" count it seems, so, some of those
+// metrics have been found by lurking into couchbase/ns_server code.
+//
+// https://github.com/couchbase/ns_server/blob/master/src/ns_rebalancer.erl#L92
 type Counters struct {
 	RebalanceStart          int64 `json:"rebalance_start"`
 	RebalanceSuccess        int64 `json:"rebalance_success"`
 	RebalanceFail           int64 `json:"rebalance_fail"`
+	RebalanceStop           int64 `json:"rebalance_stop"`
 	FailoverNode            int64 `json:"failover_node"`
+	Failover                int64 `json:"failover"`
+	FailoverComplete        int64 `json:"failover_complete"`
+	FailoverIncomplete      int64 `json:"failover_incomplete"`
 	GracefulFailoverStart   int64 `json:"graceful_failover_start"`
 	GracefulFailoverSuccess int64 `json:"graceful_failover_success"`
 	GracefulFailoverFail    int64 `json:"graceful_failover_fail"`
