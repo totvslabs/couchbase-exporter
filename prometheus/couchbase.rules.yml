@@ -25,6 +25,13 @@ groups:
       severity: critical
     annotations:
       summary: 'Couchbase cluster is not balanced'
+  - alert: CouchbaseNodeNotHealthy
+    expr: couchbase_node_healthy == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Node {{ $labels.node }} is not healthy, you may want to fail it over"
   - alert: CouchbaseTooFragmented
     expr: couchbase_bucket_couch_docs_fragmentation > 30 and couchbase_task_compacting_progress == 0
     for: 10m
