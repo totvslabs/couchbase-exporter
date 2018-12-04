@@ -147,7 +147,7 @@ dashboard.new(
       'Bucket RAM Usage',
       datasource='Prometheus',
       span=2,
-      decimals=2,
+      decimals=1,
       valueName='current',
       gaugeShow=true,
       gaugeThresholdMarkers=true,
@@ -167,28 +167,35 @@ dashboard.new(
       datasource='Prometheus',
       span=2,
       valueName='current',
+      valueFontSize='200%',
       sparklineFull=true,
       sparklineShow=true,
     )
     .addTarget(
       prometheus.target(
-        'count(couchbase_node_interestingstats_ops{instance=~"$instance"})',
+        'count(couchbase_node_healthy{instance=~"$instance"})',
       )
     )
   )
   .addPanel(
     singlestat.new(
-      'Bucket QPS',
+      'Unhealthy Server Count',
       format='none',
       datasource='Prometheus',
       span=2,
       valueName='current',
-      sparklineFull=true,
-      sparklineShow=true,
+      valueFontSize='200%',
+      thresholds='0,1',
+      colorBackground=true,
+      colors=[
+        '#299c46',
+        '#299c46',
+        '#d44a3a',
+      ],
     )
     .addTarget(
       prometheus.target(
-        'avg(sum by (bucket) (couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance=~"$instance"}) + sum by (bucket) (couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance=~"$instance"}))',
+        'count(couchbase_node_healthy{instance=~"$instance"} == 0) or (1-absent(couchbase_node_healthy{instance=~"$instance"} == 0))',
       )
     )
   )
