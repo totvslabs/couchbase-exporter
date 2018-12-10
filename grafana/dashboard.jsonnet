@@ -428,6 +428,48 @@ dashboard.new(
 )
 .addRow(
   row.new(
+    title='Disk',
+    collapse=false,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Disk Fetches',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_basicstats_diskfetches{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Disk Write Queue',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_disk_write_queue{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+)
+.addRow(
+  row.new(
     title='Compacting',
     collapse=true,
   )
