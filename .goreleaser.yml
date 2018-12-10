@@ -15,7 +15,8 @@ builds:
 archive:
   files:
   - grafana/dashboard.json
-  - prometheus/couchbase.rules.yml
+  - prometheus/prometheus.yml
+  - prometheus/rules/couchbase.rules.yml
 dockers:
 - image_templates:
   - "totvslabs/couchbase-exporter:latest"
