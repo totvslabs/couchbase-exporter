@@ -15,3 +15,11 @@ func last(ss []float64) float64 {
 	}
 	return ss[len(ss)-1]
 }
+
+// min returns the smaller of two given floats
+func min(x, y float64) float64 {
+	if x > y {
+		return y
+	}
+	return x
+}

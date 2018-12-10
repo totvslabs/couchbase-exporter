@@ -127,3 +127,10 @@ groups:
       severity: info
     annotations:
       summary: 'Disk usage decreased more than 1tb in the last 24h'
+  - alert: CouchbaseLowResidentRatio
+    expr: couchbase_bucket_stats_vbuckets_active_resident_items_ratio < 20
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{{ $labels.bucket }}: resident ratio is lower than 20%'
