@@ -25,7 +25,7 @@ fmt:
 
 lint:
 	./bin/golangci-lint run --enable-all ./...
-	promtool check rules prometheus/couchbase.rules.yml
+	promtool check rules prometheus/rules/couchbase.rules.yml
 	jsonnet fmt --test ./grafana/*.jsonnet
 .PHONY: lint
 
