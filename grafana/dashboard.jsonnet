@@ -245,6 +245,44 @@ dashboard.new(
       )
     )
   )
+  .addPanel(
+    graphPanel.new(
+      'Connections',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_curr_connections{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Primary items total',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
 )
 .addRow(
   row.new(
@@ -284,7 +322,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Evictions',
-      span=4,
+      span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
       legend_values=true,
@@ -302,27 +340,8 @@ dashboard.new(
   )
   .addPanel(
     graphPanel.new(
-      'Disk Fetches',
-      span=4,
-      legend_alignAsTable=true,
-      legend_rightSide=true,
-      legend_values=true,
-      legend_current=true,
-      legend_sort='current',
-      legend_sortDesc=true,
-      min=0,
-    )
-    .addTarget(
-      prometheus.target(
-        'couchbase_bucket_stats_ep_bg_fetched{bucket=~"$bucket",instance=~"$instance"}',
-        legendFormat='{{ bucket }}',
-      )
-    )
-  )
-  .addPanel(
-    graphPanel.new(
       'Resident Ratio',
-      span=4,
+      span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
       legend_values=true,
@@ -421,6 +440,48 @@ dashboard.new(
     .addTarget(
       prometheus.target(
         'rate(couchbase_bucket_stats_ep_oom_errors{instance="$instance", bucket=~"$bucket"}[5m])',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+)
+.addRow(
+  row.new(
+    title='Disk',
+    collapse=true,
+  )
+  .addPanel(
+    graphPanel.new(
+      'Disk Fetches',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_basicstats_diskfetches{instance=~"$instance", bucket=~"$bucket"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Disk Write Queue',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_disk_write_queue{instance=~"$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}',
       )
     )
