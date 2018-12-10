@@ -284,7 +284,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Evictions',
-      span=6,
+      span=4,
       legend_alignAsTable=true,
       legend_rightSide=true,
       legend_values=true,
@@ -302,8 +302,27 @@ dashboard.new(
   )
   .addPanel(
     graphPanel.new(
-      'Miss Rate',
-      span=6,
+      'Disk Fetches',
+      span=4,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_ep_bg_fetched{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Resident Ratio',
+      span=4,
       legend_alignAsTable=true,
       legend_rightSide=true,
       legend_values=true,
@@ -313,10 +332,20 @@ dashboard.new(
       format='percent',
       min=0,
       max=100,
+      thresholds=[
+        {
+          value: 20,
+          colorMode: 'critical',
+          op: 'lt',
+          fill: true,
+          line: true,
+          yaxis: 'left',
+        },
+      ],
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_cache_miss_rate{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_vbuckets_active_resident_items_ratio{bucket=~"$bucket",instance=~"$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
