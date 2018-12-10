@@ -134,6 +134,13 @@ groups:
       severity: warning
     annotations:
       summary: '{{ $labels.bucket }}: resident ratio is lower than 20%'
+  - alert: CouchbaseHighCacheMissRate
+    expr: couchbase_bucket_stats_ep_cache_miss_rate > 20
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{{ $labels.bucket }}: cache miss rate is high'
   - alert: CouchbaseHighDiskWriteQueue
     expr: couchbase_bucket_stats_disk_write_queue > 1000000
     for: 1s

@@ -245,6 +245,44 @@ dashboard.new(
       )
     )
   )
+  .addPanel(
+    graphPanel.new(
+      'Connections',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_curr_connections{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
+  .addPanel(
+    graphPanel.new(
+      'Primary items total',
+      span=6,
+      legend_alignAsTable=true,
+      legend_rightSide=true,
+      legend_values=true,
+      legend_current=true,
+      legend_sort='current',
+      legend_sortDesc=true,
+      min=0,
+    )
+    .addTarget(
+      prometheus.target(
+        'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance=~"$instance"}',
+        legendFormat='{{ bucket }}',
+      )
+    )
+  )
 )
 .addRow(
   row.new(
