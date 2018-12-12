@@ -37,10 +37,7 @@ func main() {
 
 	log.Infof("starting couchbase-exporter %s...", version)
 
-	client, err := client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
-	if err != nil {
-		log.Fatalf("failed to create couchbase client: %v", err)
-	}
+	var client = client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
 
 	if *tasks {
 		prometheus.MustRegister(collector.NewTasksCollector(client))
