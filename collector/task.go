@@ -13,11 +13,12 @@ type taskCollector struct {
 	mutex  sync.Mutex
 	client client.Client
 
-	up               *prometheus.Desc
-	scrapeDuration   *prometheus.Desc
-	rebalance        *prometheus.Desc
-	rebalancePerNode *prometheus.Desc
-	compacting       *prometheus.Desc
+	up                    *prometheus.Desc
+	scrapeDuration        *prometheus.Desc
+	rebalance             *prometheus.Desc
+	rebalancePerNode      *prometheus.Desc
+	compacting            *prometheus.Desc
+	clusterLogsCollection *prometheus.Desc
 }
 
 // NewTasksCollector tasks collector
@@ -56,6 +57,12 @@ func NewTasksCollector(client client.Client) prometheus.Collector {
 			[]string{"bucket"},
 			nil,
 		),
+		clusterLogsCollection: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "cluster_logs_collection_progress"),
+			"Progress of a cluster logs collection task",
+			[]string{"bucket"},
+			nil,
+		),
 	}
 }
 
@@ -66,6 +73,7 @@ func (c *taskCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.rebalance
 	ch <- c.rebalancePerNode
 	ch <- c.compacting
+	ch <- c.clusterLogsCollection
 }
 
 // Collect all metrics
@@ -106,8 +114,10 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 				ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, task.Progress, task.Bucket)
 			}
 			compactsReported[task.Bucket] = true
+		case "clusterLogsCollection":
+			ch <- prometheus.MustNewConstMetric(c.clusterLogsCollection, prometheus.GaugeValue, task.Progress)
 		default:
-			log.With("type", task.Type).Error("not implemented")
+			log.With("type", task.Type).Warn("not implemented")
 		}
 	}
 	// always report the compacting task, even if it is not happening
