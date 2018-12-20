@@ -60,7 +60,7 @@ func NewTasksCollector(client client.Client) prometheus.Collector {
 		clusterLogsCollection: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "cluster_logs_collection_progress"),
 			"Progress of a cluster logs collection task",
-			[]string{"bucket"},
+			nil,
 			nil,
 		),
 	}
