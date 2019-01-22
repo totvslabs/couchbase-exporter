@@ -19,6 +19,11 @@ type taskCollector struct {
 	rebalancePerNode      *prometheus.Desc
 	compacting            *prometheus.Desc
 	clusterLogsCollection *prometheus.Desc
+	xdcrChangesLeft       *prometheus.Desc
+	xdcrDocsChecked       *prometheus.Desc
+	xdcrDocsWritten       *prometheus.Desc
+	xdcrPaused            *prometheus.Desc
+	xdcrErrors            *prometheus.Desc
 }
 
 // NewTasksCollector tasks collector
@@ -63,6 +68,36 @@ func NewTasksCollector(client client.Client) prometheus.Collector {
 			nil,
 			nil,
 		),
+		xdcrChangesLeft: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "xdcr_changes_left"),
+			"The number of mutations to be replicated to other clusters",
+			[]string{"bucket"},
+			nil,
+		),
+		xdcrDocsChecked: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "xdcr_docs_checked"),
+			"Docs checked (??)",
+			[]string{"bucket"},
+			nil,
+		),
+		xdcrDocsWritten: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "xdcr_docs_written"),
+			"The number of mutations that have been replicated to other clusters",
+			[]string{"bucket"},
+			nil,
+		),
+		xdcrPaused: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "xdcr_paused"),
+			"Is this replication paused",
+			[]string{"bucket"},
+			nil,
+		),
+		xdcrErrors: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "xdcr_errors"),
+			"Number of errors",
+			[]string{"bucket"},
+			nil,
+		),
 	}
 }
 
@@ -74,6 +109,11 @@ func (c *taskCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.rebalancePerNode
 	ch <- c.compacting
 	ch <- c.clusterLogsCollection
+	ch <- c.xdcrChangesLeft
+	ch <- c.xdcrDocsChecked
+	ch <- c.xdcrDocsWritten
+	ch <- c.xdcrPaused
+	ch <- c.xdcrErrors
 }
 
 // Collect all metrics
@@ -114,6 +154,13 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 				ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, task.Progress, task.Bucket)
 			}
 			compactsReported[task.Bucket] = true
+		case "xdcr":
+			log.Debugf("found xdcr tasks from %s to %s", task.Source, task.Target)
+			ch <- prometheus.MustNewConstMetric(c.xdcrChangesLeft, prometheus.GaugeValue, float64(task.ChangesLeft), task.Source)
+			ch <- prometheus.MustNewConstMetric(c.xdcrDocsChecked, prometheus.GaugeValue, float64(task.DocsChecked), task.Source)
+			ch <- prometheus.MustNewConstMetric(c.xdcrDocsWritten, prometheus.GaugeValue, float64(task.DocsWritten), task.Source)
+			ch <- prometheus.MustNewConstMetric(c.xdcrPaused, prometheus.GaugeValue, fromBool(task.PauseRequested), task.Source)
+			ch <- prometheus.MustNewConstMetric(c.xdcrErrors, prometheus.GaugeValue, float64(len(task.Errors)), task.Source)
 		case "clusterLogsCollection":
 			ch <- prometheus.MustNewConstMetric(c.clusterLogsCollection, prometheus.GaugeValue, task.Progress)
 		default:
