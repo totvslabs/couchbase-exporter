@@ -20,6 +20,15 @@ type Task struct {
 	ChangesDone  int64  `json:"changesDone,omitempty"`
 	TotalChanges int64  `json:"totalChanges,omitempty"`
 
+	// XDCR stuff
+	ChangesLeft    int64         `json:"changesLeft,omitempty"`
+	DocsChecked    int64         `json:"docsChecked,omitempty"`
+	DocsWritten    int64         `json:"docsWritten,omitempty"`
+	PauseRequested bool          `json:"pauseRequested,omitempty"`
+	Source         string        `json:"source,omitempty"`
+	Target         string        `json:"target,omitempty"`
+	Errors         []interface{} `json:"errors,omitempty"`
+
 	// Rebalance stuff
 	PerNode map[string]struct {
 		Progress float64 `json:"progress,omitempty"`
