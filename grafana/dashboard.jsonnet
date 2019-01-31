@@ -11,7 +11,7 @@ dashboard.new(
   refresh='10s',
   time_from='now-1h',
   tags=['couchbase'],
-  editable=false,
+  editable=true,
 )
 .addTemplate(
   grafana.template.datasource(
@@ -28,13 +28,15 @@ dashboard.new(
     'label_values(couchbase_bucket_basicstats_dataused_bytes, instance)',
     label='Instance',
     refresh='load',
+    multi=true,
+    includeAll=true,
   )
 )
 .addTemplate(
   grafana.template.new(
     'bucket',
     '$PROMETHEUS_DS',
-    'label_values(couchbase_bucket_basicstats_dataused_bytes{instance="$instance"}, bucket)',
+    'label_values(couchbase_bucket_basicstats_dataused_bytes{instance=~"$instance"}, bucket)',
     label='Bucket',
     refresh='load',
     multi=true,
@@ -43,8 +45,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='General',
+    title='General ($instance)',
     collapse=false,
+    repeat="instance",
   )
   .addPanel(
     singlestat.new(
@@ -80,7 +83,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_cluster_balanced{instance=~"$instance"}',
+        'couchbase_cluster_balanced{instance="$instance"}',
       )
     )
   )
@@ -109,7 +112,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_task_rebalance_progress{instance=~"$instance"}',
+        'couchbase_task_rebalance_progress{instance="$instance"}',
       )
     )
   )
@@ -138,7 +141,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'avg(couchbase_task_compacting_progress{instance=~"$instance"})',
+        'avg(couchbase_task_compacting_progress{instance="$instance",bucket=~"$bucket"})',
       )
     )
   )
@@ -156,7 +159,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size_bytes{bucket=~"$bucket",instance=~"$instance"}))',
+        'avg(100 * (sum by (bucket) (couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance="$instance"})) / sum by (bucket) (couchbase_bucket_stats_ep_max_size_bytes{bucket=~"$bucket",instance="$instance"}))',
       )
     )
   )
@@ -173,7 +176,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'count(couchbase_node_healthy{instance=~"$instance"})',
+        'count(couchbase_node_healthy{instance="$instance"})',
       )
     )
   )
@@ -195,15 +198,16 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'count(couchbase_node_healthy{instance=~"$instance"} == 0) or (1-absent(couchbase_node_healthy{instance=~"$instance"} == 0))',
+        'count(couchbase_node_healthy{instance="$instance"} == 0) or (1-absent(couchbase_node_healthy{instance="$instance"} == 0))',
       )
     )
   )
 )
 .addRow(
   row.new(
-    title='Details',
+    title='Details ($instance)',
     collapse=false,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -219,7 +223,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'sum by (bucket) (couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance=~"$instance"}) + sum by (bucket) (couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance=~"$instance"})',
+        'sum by (bucket) (couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance="$instance"}) + sum by (bucket) (couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance="$instance"})',
         legendFormat='{{ bucket }}',
       )
     )
@@ -240,7 +244,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_cache_miss_rate{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_cache_miss_rate{bucket=~"$bucket",instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -259,7 +263,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_curr_connections{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_curr_connections{bucket=~"$bucket",instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -278,7 +282,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -286,8 +290,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Queries',
+    title='Queries ($instance)',
     collapse=false,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -308,13 +313,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_cmd_set{bucket=~"$bucket",instance="$instance"}',
         legendFormat='Sets on {{ bucket }}',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_cmd_get{bucket=~"$bucket",instance="$instance"}',
         legendFormat='Gets on {{ bucket }}',
       )
     )
@@ -333,7 +338,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_evictions{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_evictions{bucket=~"$bucket",instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -364,7 +369,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_vbuckets_active_resident_items_ratio{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_vbuckets_active_resident_items_ratio{bucket=~"$bucket",instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -372,8 +377,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Memory',
+    title='Memory ($instance)',
     collapse=true,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -401,7 +407,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        '100 * couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance=~"$instance"} / couchbase_bucket_stats_ep_max_size_bytes',
+        '100 * couchbase_bucket_basicstats_memused_bytes{bucket=~"$bucket",instance="$instance"} / couchbase_bucket_stats_ep_max_size_bytes',
         legendFormat='{{ bucket }}',
       )
     )
@@ -420,7 +426,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance=~"$instance"}',
+        'couchbase_bucket_stats_curr_items{bucket=~"$bucket",instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -447,8 +453,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Disk',
+    title='Disk ($instance)',
     collapse=true,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -463,7 +470,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_basicstats_diskfetches{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_basicstats_diskfetches{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -481,7 +488,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_disk_write_queue{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_disk_write_queue{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -489,8 +496,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Compacting',
+    title='Compacting ($instance)',
     collapse=true,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -508,7 +516,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_couch_docs_fragmentation{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_couch_docs_fragmentation{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -530,7 +538,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_task_compacting_progress{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_task_compacting_progress{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -538,8 +546,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Rebalance',
+    title='Rebalance ($instance)',
     collapse=true,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -558,7 +567,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_task_rebalance_progress{instance=~"$instance"}',
+        'couchbase_task_rebalance_progress{instance="$instance"}',
         legendFormat='{{ instance }}',
       )
     )
@@ -577,13 +586,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_producers{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replica_producers{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}: DCP Senders',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replicas{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replicas{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}: DCP Connections',
       )
     )
@@ -607,13 +616,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_items_sent{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replica_items_sent{instance="$instance", bucket=~"$bucket"}',
         legendFormat='Sent on {{ bucket }}',
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_items_remaining{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replica_items_remaining{instance="$instance", bucket=~"$bucket"}',
         legendFormat='Remaining on {{ bucket }}',
       )
     )
@@ -633,7 +642,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_replica_total_bytes{instance=~"$instance", bucket=~"$bucket"}',
+        'couchbase_bucket_stats_ep_dcp_replica_total_bytes{instance="$instance", bucket=~"$bucket"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -641,8 +650,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='XDCR',
+    title='XDCR ($instance)',
     collapse=true,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
@@ -689,7 +699,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_xdcr_total_bytes{bucket=~"$bucket", instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_dcp_xdcr_total_bytes{bucket=~"$bucket", instance="$instance"}',
         legendFormat='{{ bucket }}',
       )
     )
@@ -708,7 +718,7 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_xdcr_total_backlog_size{bucket=~"$bucket", instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_dcp_xdcr_total_backlog_size{bucket=~"$bucket", instance="$instance"}',
         legendFormat='{{ bucket }}'
       )
     )
@@ -727,13 +737,13 @@ dashboard.new(
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_xdcr_connections{bucket=~"$bucket", instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_dcp_xdcr_connections{bucket=~"$bucket", instance="$instance"}',
         legendFormat='{{ bucket }}: connections'
       )
     )
     .addTarget(
       prometheus.target(
-        'couchbase_bucket_stats_ep_dcp_xdcr_producers{bucket=~"$bucket", instance=~"$instance"}',
+        'couchbase_bucket_stats_ep_dcp_xdcr_producers{bucket=~"$bucket", instance="$instance"}',
         legendFormat='{{ bucket }}: producers'
       )
     )
@@ -741,8 +751,9 @@ dashboard.new(
 )
 .addRow(
   row.new(
-    title='Scrape times',
+    title='Scrape times ($instance)',
     collapse=true,
+    repeat="instance",
   )
   .addPanel(
     graphPanel.new(
