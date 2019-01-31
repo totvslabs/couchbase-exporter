@@ -267,7 +267,6 @@ func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 		log.With("error", err).Error("failed to scrape cluster")
 		return
 	}
-	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
 	ch <- prometheus.MustNewConstMetric(c.balanced, prometheus.GaugeValue, fromBool(cluster.Balanced))
 	ch <- prometheus.MustNewConstMetric(c.ftsMemoryQuota, prometheus.GaugeValue, cluster.FtsMemoryQuota*1024*1024)
@@ -298,5 +297,6 @@ func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.storagetotalsHddUsedbydata, prometheus.GaugeValue, cluster.StorageTotals.Hdd.UsedByData)
 	ch <- prometheus.MustNewConstMetric(c.storagetotalsHddFree, prometheus.GaugeValue, cluster.StorageTotals.Hdd.Free)
 
+	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 }

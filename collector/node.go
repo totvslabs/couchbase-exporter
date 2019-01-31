@@ -178,7 +178,6 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 		log.With("error", err).Error("failed to scrape nodes")
 		return
 	}
-	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
 	// nolint: lll
 	for _, node := range nodes.Nodes {
@@ -200,6 +199,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsEpBgFetched, prometheus.GaugeValue, node.InterestingStats.EpBgFetched, node.Hostname)
 	}
 
+	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 	// nolint: lll
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 }

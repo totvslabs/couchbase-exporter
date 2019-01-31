@@ -40,40 +40,8 @@ type Cluster struct {
 		TerseBucketsBase          string `json:"terseBucketsBase"`
 		TerseStreamingBucketsBase string `json:"terseStreamingBucketsBase"`
 	} `json:"buckets"`
-	RemoteClusters struct {
-		URI         string `json:"uri"`
-		ValidateURI string `json:"validateURI"`
-	} `json:"remoteClusters"`
-	RebalanceStatus        string  `json:"rebalanceStatus"`
-	MaxBucketCount         float64 `json:"maxBucketCount"`
-	AutoCompactionSettings struct {
-		ParallelDBAndViewCompaction    bool `json:"parallelDBAndViewCompaction"`
-		DatabaseFragmentationThreshold struct {
-			Percentage float64 `json:"percentage"`
-			Size       string  `json:"size"`
-		} `json:"databaseFragmentationThreshold"`
-		ViewFragmentationThreshold struct {
-			Percentage float64 `json:"percentage"`
-			Size       string  `json:"size"`
-		} `json:"viewFragmentationThreshold"`
-		IndexCompactionMode     string `json:"indexCompactionMode"`
-		IndexCircularCompaction struct {
-			DaysOfWeek string `json:"daysOfWeek"`
-			Interval   struct {
-				FromHour     float64 `json:"fromHour"`
-				ToHour       float64 `json:"toHour"`
-				FromMinute   float64 `json:"fromMinute"`
-				ToMinute     float64 `json:"toMinute"`
-				AbortOutside bool    `json:"abortOutside"`
-			} `json:"interval"`
-		} `json:"indexCircularCompaction"`
-		IndexFragmentationThreshold struct {
-			Percentage float64 `json:"percentage"`
-		} `json:"indexFragmentationThreshold"`
-	} `json:"autoCompactionSettings"`
-	Tasks struct {
-		URI string `json:"uri"`
-	} `json:"tasks"`
+	RebalanceStatus     string   `json:"rebalanceStatus"`
+	MaxBucketCount      float64  `json:"maxBucketCount"`
 	Counters            Counters `json:"counters"`
 	IndexStatusURI      string   `json:"indexStatusURI"`
 	CheckPermissionsURI string   `json:"checkPermissionsURI"`

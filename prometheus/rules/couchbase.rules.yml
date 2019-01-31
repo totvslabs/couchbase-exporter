@@ -153,3 +153,11 @@ groups:
       severity: warning
     annotations:
       summary: 'Couchbase XDCR from {{ $labels.bucket }} to {{ $labels.target }} is erroring'
+  - alert: CouchbaseScrapeError
+    expr: couchbase_bucket_up == 0 OR couchbase_cluster_up == 0 OR couchbase_node_up == 0 OR couchbase_task_up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: 'Couchbase is failing to scrape {{ $labels.instance }}'
+      description: 'It may be a problem within the cluster or a bug in the exporter.'
