@@ -136,7 +136,6 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 		log.With("error", err).Error("failed to scrape tasks")
 		return
 	}
-	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 
 	var compactsReported = map[string]bool{}
 	// nolint: lll
@@ -178,6 +177,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 		compactsReported[bucket.Name] = true
 	}
 
+	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, 1)
 	// nolint: lll
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 }
