@@ -146,3 +146,10 @@ groups:
       severity: critical
     annotations:
       summary: '{{ $labels.bucket }}: disk write queue is big (millions of items)'
+  - alert: CouchbaseXDCRErroring
+    expr: couchbase_task_xdcr_errors > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'Couchbase XDCR from {{ $labels.bucket }} to {{ $labels.target }} is erroring'

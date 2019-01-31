@@ -70,19 +70,19 @@ func NewTasksCollector(client client.Client) prometheus.Collector {
 		),
 		xdcrChangesLeft: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "xdcr_changes_left"),
-			"The number of mutations to be replicated to other clusters",
+			"Number of updates still pending replication",
 			[]string{"bucket", "target"},
 			nil,
 		),
 		xdcrDocsChecked: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "xdcr_docs_checked"),
-			"Docs checked (??)",
+			"Number of documents checked for changes",
 			[]string{"bucket", "target"},
 			nil,
 		),
 		xdcrDocsWritten: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "xdcr_docs_written"),
-			"The number of mutations that have been replicated to other clusters",
+			"Number of documents written to the destination cluster",
 			[]string{"bucket", "target"},
 			nil,
 		),
