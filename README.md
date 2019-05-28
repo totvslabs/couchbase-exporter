@@ -15,7 +15,7 @@ naming (like adding `_total`, `_seconds`, `_byte` prefixes), and finally,
 provide example alerting rules and grafana dashboards, so it's easier to
 proper monitor a couchbase cluster.
 
-It's worth saying that we will only support Couchbase 5 for now.
+It's worth saying that we will only support Couchbase 5+ for now.
 
 ## Usage
 

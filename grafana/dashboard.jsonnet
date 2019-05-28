@@ -7,7 +7,7 @@ local prometheus = grafana.prometheus;
 
 dashboard.new(
   'Couchbase5',
-  description='Couchbase 5 dashboard, created for totvslabs/couchbase-exporter',
+  description='Couchbase 5+ dashboard, created for totvslabs/couchbase-exporter',
   refresh='10s',
   time_from='now-1h',
   tags=['couchbase'],
