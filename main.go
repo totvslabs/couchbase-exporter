@@ -23,10 +23,10 @@ var (
 	couchbaseUsername = app.Flag("couchbase.username", "Couchbase username").String()
 	couchbasePassword = app.Flag("couchbase.password", "Couchbase password").OverrideDefaultFromEnvar("COUCHBASE_PASSWORD").String()
 
-	tasks   = app.Flag("collectors.tasks", "Wether to collect tasks metrics").Default("true").Bool()
-	buckets = app.Flag("collectors.buckets", "Wether to collect buckets metrics").Default("true").Bool()
-	nodes   = app.Flag("collectors.nodes", "Wether to collect nodes metrics").Default("true").Bool()
-	cluster = app.Flag("collectors.cluster", "Wether to collect cluster metrics").Default("true").Bool()
+	tasks   = app.Flag("collectors.tasks", "Whether to collect tasks metrics").Default("true").Bool()
+	buckets = app.Flag("collectors.buckets", "Whether to collect buckets metrics").Default("true").Bool()
+	nodes   = app.Flag("collectors.nodes", "Whether to collect nodes metrics").Default("true").Bool()
+	cluster = app.Flag("collectors.cluster", "Whether to collect cluster metrics").Default("true").Bool()
 )
 
 func main() {
