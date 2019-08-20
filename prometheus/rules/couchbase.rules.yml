@@ -2,7 +2,7 @@
 #
 # Do not edit.
 #
-# source: https://github.com/totvslabs/couchbase-exporter/blob/master/prometheus/couchbase.rules.yml
+# source: https://github.com/totvslabs/couchbase-exporter/blob/master/prometheus/rules/couchbase.rules.yml
 #
 #
 groups:
@@ -15,7 +15,7 @@ groups:
     for: 1m
     labels:
       severity: critical
-      page: true
+      page: 'true'
     annotations:
       summary: 'Couchbase is down'
   - alert: CouchbaseNotBalanced
@@ -30,7 +30,7 @@ groups:
     for: 1m
     labels:
       severity: critical
-      page: true
+      page: 'true'
     annotations:
       summary: "Node {{ $labels.node }} is not healthy, you may want to fail it over"
   - alert: CouchbaseTooFragmented
@@ -94,7 +94,7 @@ groups:
     for: 1s
     labels:
       severity: critical
-      page: true
+      page: 'true'
     annotations:
       summary: 'A node has been failover failed'
   - alert: CouchbaseQuotaUsageHigh
