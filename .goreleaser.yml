@@ -12,8 +12,8 @@ builds:
   goos:
   - linux
   - darwin
-archive:
-  files:
+archives:
+- files:
   - grafana/dashboard.json
   - prometheus/prometheus.yml
   - prometheus/rules/couchbase.rules.yml
