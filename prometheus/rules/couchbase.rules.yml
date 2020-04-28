@@ -140,12 +140,12 @@ groups:
     annotations:
       summary: '{{ $labels.bucket }}: cache miss rate is {{ $value | printf "%.2f" }}%'
   - alert: CouchbaseHighDiskWriteQueue
-    expr: couchbase_bucket_stats_disk_write_queue > 1000000
-    for: 1s
+    expr: couchbase_bucket_stats_disk_write_queue > 200
+    for: 1m
     labels:
-      severity: critical
+      severity: warning
     annotations:
-      summary: '{{ $labels.bucket }}: disk write queue is big (millions of items)'
+      summary: '{{ $labels.bucket }}: disk write queue is big'
   - alert: CouchbaseXDCRErroring
     expr: couchbase_task_xdcr_errors > 0
     for: 1m
