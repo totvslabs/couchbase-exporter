@@ -49,8 +49,8 @@ dashboard.new(
   .addPanel(
     singlestat.new(
       'Balanced',
-      datasource='Prometheus',
       span=2,
+      datasource='$PROMETHEUS_DS',
       valueName='current',
       colorBackground=true,
       valueFontSize='200%',
@@ -88,8 +88,8 @@ dashboard.new(
     singlestat.new(
       'Rebalance Progress',
       format='percent',
-      datasource='Prometheus',
       span=2,
+      datasource='$PROMETHEUS_DS',
       decimals=1,
       valueName='current',
       gaugeShow=true,
@@ -117,8 +117,8 @@ dashboard.new(
     singlestat.new(
       'Compacting Progress',
       format='percent',
-      datasource='Prometheus',
       span=2,
+      datasource='$PROMETHEUS_DS',
       decimals=1,
       valueName='current',
       gaugeShow=true,
@@ -145,8 +145,8 @@ dashboard.new(
   .addPanel(
     singlestat.new(
       'Bucket RAM Usage',
-      datasource='Prometheus',
       span=2,
+      datasource='$PROMETHEUS_DS',
       decimals=1,
       valueName='current',
       gaugeShow=true,
@@ -164,8 +164,8 @@ dashboard.new(
     singlestat.new(
       'Server Count',
       format='none',
-      datasource='Prometheus',
       span=2,
+      datasource='$PROMETHEUS_DS',
       valueName='current',
       valueFontSize='200%',
       sparklineFull=true,
@@ -181,8 +181,8 @@ dashboard.new(
     singlestat.new(
       'Unhealthy Server Count',
       format='none',
-      datasource='Prometheus',
       span=2,
+      datasource='$PROMETHEUS_DS',
       valueName='current',
       valueFontSize='200%',
       thresholds='0,1',
@@ -208,6 +208,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'QPS',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -227,6 +228,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Cache Miss Rate',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -248,6 +250,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Connections',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -267,6 +270,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Primary items total',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -292,6 +296,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Gets / Sets',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -322,6 +327,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Evictions',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -341,6 +347,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Resident Ratio',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -378,6 +385,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Memory Used',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -409,6 +417,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Items Count',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -428,6 +437,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Hard Out of Memory Errors',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -453,6 +463,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Disk Fetches',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -471,6 +482,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Disk Write Queue',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -495,6 +507,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Fragmentation',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -516,6 +529,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Compaction Progress',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -544,6 +558,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Rebalance Progress',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -566,6 +581,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'DCP Replication',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -591,6 +607,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Items Sent / Remaining',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -621,6 +638,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Speed',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -647,6 +665,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Items Sent / Remaining',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -677,6 +696,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Speed',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -697,6 +717,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Backlog Size',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -716,6 +737,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'DCP',
+      datasource='$PROMETHEUS_DS',
       span=6,
       legend_alignAsTable=true,
       legend_rightSide=true,
@@ -747,6 +769,7 @@ dashboard.new(
   .addPanel(
     graphPanel.new(
       'Scrape durations',
+      datasource='$PROMETHEUS_DS',
       span=12,
       legend_alignAsTable=true,
       legend_rightSide=true,
