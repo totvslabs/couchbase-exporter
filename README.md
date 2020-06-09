@@ -20,7 +20,8 @@ It's worth saying that we will only support Couchbase 5+ for now.
 ## Usage
 
 ```console
-$ couchbase-exporter --couchbase.username adm --couchbase.password secret
+$ export COUCHBASE_PASSWORD=secret
+$ couchbase-exporter --couchbase.username adm
 ```
 
 > check `couchbase-exporter --help` for more options!
