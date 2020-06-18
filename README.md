@@ -17,6 +17,21 @@ proper monitor a couchbase cluster.
 
 It's worth saying that we will only support Couchbase 5+ for now.
 
+## Installation
+
+### Building from source
+This requires the user to have `go` installed on their system, preferably version1.13 and onwards.  
+1. Run `git clone https://github.com/totvslabs/couchbase-exporter.git`.
+2. Change directory by running `cd couchbase-exporter`.
+3. Create a go executable by running `go build -o couchbase-exporter main.go`. You might have to prefix `sudo` if you encounter permission issues.
+4. Start the exporter using `./couchbase-exporter` followed by specific flags and their values.
+
+### Using the Releases
+
+1. Pick from the couchbase-exporter releases available [here](https://github.com/totvslabs/couchbase-exporter/releases) depending on whether you're a macOS or Linux user.
+2. Download the release binary and extract it.
+3. The exporter is now ready to be used!
+
 ## Usage
 
 ```console
