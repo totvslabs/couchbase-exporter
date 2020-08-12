@@ -20,6 +20,7 @@ var (
 	listenAddress     = app.Flag("web.listen-address", "Address to listen on for web interface and telemetry").Default(":9420").String()
 	metricsPath       = app.Flag("web.telemetry-path", "Path under which to expose metrics").Default("/metrics").String()
 	couchbaseURL      = app.Flag("couchbase.url", "Couchbase URL to scrape").Default("http://localhost:8091").String()
+	couchbaseFTSURL   = app.Flag("couchbase.fts-url", "Couchbase URL to scrape").Default("http://localhost:8094").String()
 	couchbaseUsername = app.Flag("couchbase.username", "Couchbase username").String()
 	couchbasePassword = app.Flag("couchbase.password", "Couchbase password").OverrideDefaultFromEnvar("COUCHBASE_PASSWORD").String()
 
@@ -27,6 +28,7 @@ var (
 	buckets = app.Flag("collectors.buckets", "Whether to collect buckets metrics").Default("true").Bool()
 	nodes   = app.Flag("collectors.nodes", "Whether to collect nodes metrics").Default("true").Bool()
 	cluster = app.Flag("collectors.cluster", "Whether to collect cluster metrics").Default("true").Bool()
+	fts     = app.Flag("collectors.fts", "Whether to collect full-text search metrics").Default("true").Bool()
 )
 
 func main() {
@@ -37,6 +39,7 @@ func main() {
 
 	log.Infof("starting couchbase-exporter %s...", version)
 
+	var clientFTS = client.New(*couchbaseFTSURL, *couchbaseUsername, *couchbasePassword)
 	var client = client.New(*couchbaseURL, *couchbaseUsername, *couchbasePassword)
 
 	if *tasks {
@@ -50,6 +53,9 @@ func main() {
 	}
 	if *cluster {
 		prometheus.MustRegister(collector.NewClusterCollector(client))
+	}
+	if *fts {
+		prometheus.MustRegister(collector.NewFTSCollector(clientFTS))
 	}
 
 	http.Handle(*metricsPath, promhttp.Handler())
